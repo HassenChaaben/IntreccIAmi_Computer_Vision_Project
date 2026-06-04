@@ -4,7 +4,7 @@
 Phase 3 - Task 3.3.3: SDXL Caption Engine
 =============================================================================
 Project: IntreccIAmi (ID 10)
-Purpose: Generate captions for SDXL fine-tuning using Qwen3.5:27b via Ollama,
+Purpose: Generate captions for SDXL fine-tuning using qwen32b-caption via Ollama,
          adhering strictly to length limits (30-50 words) and tag-based styling.
 =============================================================================
 """
@@ -141,7 +141,7 @@ def generate_mock_sdxl_caption(item):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="SDXL Caption Engine using Qwen3.5:27b via Ollama")
+    parser = argparse.ArgumentParser(description="SDXL Caption Engine using qwen32b-caption via Ollama")
     parser.add_argument("--metadata", type=str, default="data/normalized_metadata.jsonl")
     parser.add_argument("--image_dir", type=str, default="data/images")
     parser.add_argument("--output_dir", type=str, default="data/id10/sdxl")
@@ -201,9 +201,9 @@ def main():
             if not args.use_mock:
                 try:
                     import ollama
-                    # Call local Ollama Qwen3.5:27b model
+                    # Call local Ollama qwen32b-caption model
                     response = ollama.chat(
-                        model="qwen3.5:27b",
+                        model="qwen32b-caption",
                         messages=[{
                             "role": "user",
                             "content": prompt,

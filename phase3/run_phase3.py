@@ -22,7 +22,7 @@ def run_engine(script_name: str, use_mock: bool) -> bool:
     script_path = PHASE3_DIR / script_name
     print(f"\n{'-' * 65}")
     print(f"  Running Caption Engine: {script_name}")
-    print(f"  Mode: {'MOCK (local test)' if use_mock else 'OLLAMA qwen3.5:27b (GPU)'}")
+    print(f"  Mode: {'MOCK (local test)' if use_mock else 'OLLAMA qwen32b-caption (GPU)'}")
     print(f"{'-' * 65}\n")
 
     cmd = [sys.executable, str(script_path)]
