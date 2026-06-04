@@ -4,87 +4,75 @@
 Phase 2 - Task 2.3: Field Normalization & Parsing Script
 =============================================================================
 Project: IntreccIAmi (ID 10)
-Purpose: Read the Label Studio JSON export, extract normalized metadata for
-         each task, perform integrity checks against the image directory,
-         and save the output to data/normalized_metadata.jsonl and 
-         data/qa_report.csv.
-
-This script implements the exact logic specified in the project instructions
-(Section 7), adapting it to properly handle filename edge cases (e.g.,
-Label Studio replacing spaces with underscores).
-
-Usage (from the project root):
-    python phase2/normalize_dataset.py
+Purpose: Normalize Label Studio annotations according to the exact structure
+         provided in Section 7 of the project instructions.
 =============================================================================
 """
 
 import json
-import csv
 from pathlib import Path
 import re
 
-# ---------------------------------------------------------------------------
-# CONFIGURATION
-# ---------------------------------------------------------------------------
+# Resolve paths relative to the project root for safety
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-JSON_PATH = PROJECT_ROOT / "data" / "raw_json" / "label_studio_texture_labels.json"
-IMAGE_DIR = PROJECT_ROOT / "data" / "images"
-OUTPUT_JSONL = PROJECT_ROOT / "data" / "normalized_metadata.jsonl"
-QA_REPORT = PROJECT_ROOT / "data" / "qa_report.csv"
-# ---------------------------------------------------------------------------
+json_path = PROJECT_ROOT / "data" / "raw_json" / "label_studio_texture_labels.json"
+image_dir = PROJECT_ROOT / "data" / "images"
+output_path = PROJECT_ROOT / "data" / "normalized_metadata.jsonl"
+
+with open(json_path, "r", encoding="utf-8") as f:
+    tasks = json.load(f)
 
 
 def extract_filename(path_or_url: str) -> str:
-    """Extract the filename from a Label Studio path/url."""
+    # Extract the base name from the path/url as expected by instructions
     raw_name = Path(path_or_url).name
-    # Keep the hex strip so the pipeline doesn't break, but otherwise match instructions
+    
+    # [ADJUSTMENT] Label Studio prefixes uploaded files with an 8-character hex ID (e.g. 'b22f6e86-').
+    # We strip this hex prefix so it matches the actual filenames in the images folder.
     match = re.match(r'^[a-f0-9]{8}-(.+)$', raw_name)
-    if match:
-        return match.group(1)
-    return raw_name
-
-
-def find_actual_image_path(filename: str, img_dir: Path) -> Path:
-    """
-    Find the actual image file on disk. Handles cases where Label Studio
-    replaced spaces with underscores in the filename.
-    """
-    direct_path = img_dir / filename
-    if direct_path.exists():
-        return direct_path
-        
-    # Robust fallback: iterate through directory and match ignoring spaces/underscores
-    filename_normalized = filename.replace('_', '').replace(' ', '').lower()
-    for f in img_dir.iterdir():
-        if f.is_file() and f.name.replace('_', '').replace(' ', '').lower() == filename_normalized:
-            return f
+    filename = match.group(1) if match else raw_name
+    
+    # [ADJUSTMENT] Handle potential filename matching mismatches (spaces vs underscores)
+    if not (image_dir / filename).exists():
+        space_name = filename.replace('_', ' ')
+        if (image_dir / space_name).exists():
+            return space_name
             
-    return None
+        # Fallback to case-insensitive match ignoring spaces/underscores
+        norm_name = filename.replace('_', '').replace(' ', '').lower()
+        if image_dir.exists():
+            for f in image_dir.iterdir():
+                if f.is_file() and f.name.replace('_', '').replace(' ', '').lower() == norm_name:
+                    return f.name
+                    
+    return filename
 
 
 def get_first_annotation(task):
-    """Retrieve the first annotation from a task."""
     annotations = task.get("annotations", [])
     if not annotations:
         return None
-    # Assuming first annotation is the completed one
+    # Use the first completed annotation, or adapt this logic if multiple annotators exist.
     return annotations[0]
 
 
-def normalize_task(task, img_dir: Path):
-    """Parse a Label Studio task into the normalized JSON structure."""
+def read_choice(value):
+    return value.get("choices", []) if isinstance(value, dict) else []
+
+
+def read_text(value):
+    texts = value.get("text", []) if isinstance(value, dict) else []
+    return texts[0] if texts else None
+
+
+def normalize_task(task):
     data = task.get("data", {})
     image_path = data.get("image") or data.get("texture_img") or ""
     filename = extract_filename(image_path)
 
-    # Use the helper to find actual file to prevent breakage, but output what instructions expect
-    actual_path = find_actual_image_path(filename, img_dir)
-    if not actual_path:
-        return None, f"Missing image: {filename}"
-
     ann = get_first_annotation(task)
     if ann is None:
-        return None, "No annotations"
+        return None
 
     flat = {}
     bbox = None
@@ -151,9 +139,10 @@ def normalize_task(task, img_dir: Path):
                 "colors": flat.get(f"trama_{i}_colore", [])
             })
 
-    normalized_data = {
+    return {
         "task_id": task.get("id"),
-        "image": {"filename": filename, "path": str(img_dir / filename).replace("\\", "/")},
+        # Use relative paths for portability across different environments (local vs. GPU server)
+        "image": {"filename": filename, "path": f"data/images/{filename}"},
         "code": flat.get("codice_bottega"),
         "technique": (flat.get("tecnica_usata") or [None])[0],
         "weave_types": flat.get("tipologia_intreccio", []),
@@ -165,70 +154,22 @@ def normalize_task(task, img_dir: Path):
         },
         "posts": posts,
         "wefts": wefts,
+        # [ADJUSTMENT] The instructions check 'oggetto_note', but the actual raw JSON export
+        # stores annotated notes under 'descrizioni_speciali'. We check both to avoid discarding data.
         "special_description": flat.get("oggetto_note") or flat.get("descrizioni_speciali"),
         "bbox": bbox,
     }
-    
-    return normalized_data, "OK"
 
+normalized = []
+for task in tasks:
+    item = normalize_task(task)
+    if item is None:
+        continue
+    # Verify image existence using the resolved absolute image_dir
+    if not (image_dir / item["image"]["filename"]).exists():
+        print("Missing image:", item["image"]["filename"])
+    normalized.append(item)
 
-def main():
-    print("=" * 65)
-    print("Phase 2 – Task 2.1-2.3: Metadata Extraction & Normalization")
-    print("=" * 65)
-
-    if not JSON_PATH.exists():
-        print(f"ERROR: Raw JSON not found at {JSON_PATH}")
-        return
-        
-    with open(JSON_PATH, "r", encoding="utf-8") as f:
-        try:
-            tasks = json.load(f)
-        except json.JSONDecodeError:
-            print("ERROR: Failed to parse JSON file.")
-            return
-
-    if not isinstance(tasks, list):
-        print("ERROR: Root of JSON file is not a list as expected.")
-        return
-        
-    print(f"Successfully loaded JSON. Found {len(tasks)} tasks.")
-
-    normalized_records = []
-    qa_issues = []
-
-    for task in tasks:
-        task_id = task.get("id", "Unknown")
-        item, status = normalize_task(task, IMAGE_DIR)
-        
-        if item is not None:
-            normalized_records.append(item)
-            # Check for anomalies to log
-            if not item.get("technique"):
-                qa_issues.append({"task_id": task_id, "issue": "Missing technique field"})
-            if not item.get("weave_types"):
-                qa_issues.append({"task_id": task_id, "issue": "Missing weave_types field"})
-        else:
-            qa_issues.append({"task_id": task_id, "issue": status})
-            print(f"Warning: Task {task_id} failed: {status}")
-
-    # Write normalized JSONL
-    with open(OUTPUT_JSONL, "w", encoding="utf-8") as f:
-        for item in normalized_records:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-    
-    # Write QA report CSV
-    with open(QA_REPORT, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["task_id", "issue"])
-        writer.writeheader()
-        writer.writerows(qa_issues)
-
-    print("\n" + "=" * 65)
-    print(f"Processed {len(tasks)} tasks.")
-    print(f"Saved {len(normalized_records)} valid records to {OUTPUT_JSONL}")
-    print(f"Logged {len(qa_issues)} QA issues to {QA_REPORT}")
-    print("=" * 65)
-
-
-if __name__ == "__main__":
-    main()
+with open(output_path, "w", encoding="utf-8") as f:
+    for item in normalized:
+        f.write(json.dumps(item, ensure_ascii=False) + "\n")

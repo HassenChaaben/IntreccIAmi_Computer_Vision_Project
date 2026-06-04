@@ -104,6 +104,7 @@ python phase2/normalize_dataset.py
 
 ## 6. Known Issues & Notes
 
+- **DOCX Instruction Synchronization:** The script has been rewritten to match the exact structure, functions (`read_choice`, `read_text`), and looping mechanics of Section 7 in `Istruzioni_ID10_IntreccIAmi_Qwen_DiffSynth_TRANSLATED_EN.docx`.
 - **`descrizioni_speciali` vs `oggetto_note`:** The instruction's Section 7 pseudocode expects `oggetto_note`. However, the raw JSON export stores these free-text notes under the field name `descrizioni_speciali`. To strictly adhere to the guidelines while remaining fully functional, the normalization script checks for `oggetto_note` and falls back to `descrizioni_speciali`. This successfully recovered notes for 98 tasks which would otherwise have been left blank.
 - **ASCII-only Console Runner:** The runner `run_phase2.py` has been updated to use purely ASCII characters for status borders, avoiding `UnicodeEncodeError` on Windows consoles where UTF-8 encoding might not be set by default.
 - **Missing Required Fields:** The script currently logs QA issues if `technique` or `weave_types` are missing, but still outputs the row if the image is valid. The captioning phase will need to handle missing fields gracefully.
