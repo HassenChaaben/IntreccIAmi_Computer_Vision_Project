@@ -170,14 +170,14 @@ def main():
     captioned_results = []
     qa_report_rows = []
 
-    for task in tasks:
+    for idx, task in enumerate(tasks, start=1):
         task_id = task.get("task_id")
         img_info = task.get("image") or {}
         filename = img_info.get("filename")
         src_image_path = image_dir_path / filename
 
         if not src_image_path.exists():
-            print(f"Warning: Source image {src_image_path} does not exist. Skipping task {task_id}.")
+            print(f"[{idx}/{len(tasks)}] Warning: Source image {src_image_path} does not exist. Skipping task {task_id}.")
             continue
 
         # Target paths for resume capability
@@ -197,6 +197,7 @@ def main():
 
         # 2. Run Inference if checkpoint not found
         if not caption:
+            print(f"[{idx}/{len(tasks)}] Calling Ollama for task {task_id} ({filename})...")
             prompt = build_sdxl_prompt(task)
             if not args.use_mock:
                 try:
@@ -212,7 +213,7 @@ def main():
                     )
                     caption = response["message"]["content"].strip()
                 except Exception as e:
-                    print(f"Ollama inference failed for task {task_id}: {e}. Falling back to mock caption.")
+                    print(f"[{idx}/{len(tasks)}] Ollama inference failed for task {task_id}: {e}. Falling back to mock caption.")
                     caption = generate_mock_sdxl_caption(task)
             else:
                 caption = generate_mock_sdxl_caption(task)
@@ -227,6 +228,7 @@ def main():
             with open(sidecar_image_caption_path, "w", encoding="utf-8") as f:
                 f.write(caption)
         else:
+            print(f"[{idx}/{len(tasks)}] Resumed task {task_id} ({filename}) from checkpoint.")
             # If resume is triggered, ensure image is copied if missing
             if not dest_image_path.exists():
                 shutil.copy2(src_image_path, dest_image_path)
