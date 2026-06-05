@@ -86,10 +86,9 @@ image.save(output_path)""")
         print("-" * 65)
 
 
-def run_sdxl_inference(caption: str, output_path: str, is_zimage: bool = False):
-    """Execute SDXL (or Z-Image) baseline image generation via DiffSynth-Studio."""
-    model_desc = "Z-Image" if is_zimage else "SDXL"
-    print(f"\n--- Loading {model_desc} Base Model & Running Inference ---")
+def run_sdxl_inference(caption: str, output_path: str):
+    """Execute SDXL baseline image generation via DiffSynth-Studio."""
+    print(f"\n--- Loading SDXL Base Model & Running Inference ---")
     print(f"Prompt: {caption}\n")
     
     try:
@@ -107,7 +106,7 @@ def run_sdxl_inference(caption: str, output_path: str, is_zimage: bool = False):
         # 2. Create pipeline
         pipe = SDXLImagePipeline.from_model_manager(model_manager)
         
-        # 4. Generate image
+        # 3. Generate image
         print("Executing image generation pipeline (30 steps)...")
         image = pipe(
             prompt=caption,
@@ -116,7 +115,7 @@ def run_sdxl_inference(caption: str, output_path: str, is_zimage: bool = False):
             height=1024
         )
         
-        # 5. Save output
+        # 4. Save output
         image.save(output_path)
         print(f"[OK] Image saved successfully to: {output_path}")
         
@@ -129,6 +128,65 @@ import torch
 model_manager = ModelManager(device="cuda", torch_dtype=torch.float16, model_id_list=["StableDiffusionXL_v1"])
 pipe = SDXLImagePipeline.from_model_manager(model_manager)
 image = pipe(prompt=prompt, num_inference_steps=30, width=1024, height=1024)
+image.save(output_path)""")
+        print("-" * 65)
+
+
+def run_zimage_inference(caption: str, output_path: str):
+    """Execute Z-Image baseline image generation via DiffSynth-Studio."""
+    print(f"\n--- Loading Z-Image Base Model & Running Inference ---")
+    print(f"Prompt: {caption}\n")
+    
+    try:
+        import torch
+        from diffsynth.pipelines.z_image import ZImagePipeline, ModelConfig
+        
+        # 1. Initialize Z-Image pipeline (downloads models if not cached)
+        print("Initializing ZImagePipeline (bfloat16, CUDA)...")
+        pipe = ZImagePipeline.from_pretrained(
+            torch_dtype=torch.bfloat16,
+            device="cuda",
+            model_configs=[
+                ModelConfig(model_id="Tongyi-MAI/Z-Image", origin_file_pattern="transformer/*.safetensors"),
+                ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="text_encoder/*.safetensors"),
+                ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+            ],
+            tokenizer_config=ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="tokenizer/"),
+        )
+        
+        # 2. Generate image using Z-Image standard parameters (50 steps, CFG 4)
+        print("Executing image generation pipeline (50 steps, cfg 4.0)...")
+        image = pipe(
+            prompt=caption,
+            seed=42,
+            rand_device="cuda",
+            num_inference_steps=50,
+            cfg_scale=4.0,
+            width=1024,
+            height=1024
+        )
+        
+        # 3. Save output
+        image.save(output_path)
+        print(f"[OK] Image saved successfully to: {output_path}")
+        
+    except ImportError:
+        print("[WARNING] DiffSynth-Studio or PyTorch not available in local environment.")
+        print("This script is ready to run on your GPU server. Here is the code it executes:")
+        print("-" * 65)
+        print("""from diffsynth.pipelines.z_image import ZImagePipeline, ModelConfig
+import torch
+pipe = ZImagePipeline.from_pretrained(
+    torch_dtype=torch.bfloat16,
+    device="cuda",
+    model_configs=[
+        ModelConfig(model_id="Tongyi-MAI/Z-Image", origin_file_pattern="transformer/*.safetensors"),
+        ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="text_encoder/*.safetensors"),
+        ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+    ],
+    tokenizer_config=ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="tokenizer/"),
+)
+image = pipe(prompt=prompt, seed=42, rand_device="cuda", num_inference_steps=50, cfg_scale=4)
 image.save(output_path)""")
         print("-" * 65)
 
@@ -174,9 +232,9 @@ def main():
     if args.model == "flux":
         run_flux_inference(caption, output_path)
     elif args.model == "sdxl":
-        run_sdxl_inference(caption, output_path, is_zimage=False)
+        run_sdxl_inference(caption, output_path)
     elif args.model == "zimage":
-        run_sdxl_inference(caption, output_path, is_zimage=True)
+        run_zimage_inference(caption, output_path)
 
 
 if __name__ == "__main__":
