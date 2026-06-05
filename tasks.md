@@ -13,11 +13,11 @@ This task list serves as the operational checklist for executing the **IntreccIA
 - [x] **1.2 Retrieve Source Materials** ✅ `phase1/copy_source_materials.py`
   - [x] Download `label_studio_texture_labels.json` and copy it into `data/raw_json/`
   - [x] Download `TEXTURE DI INTRECCI` image folder and copy all image files into `data/images/`
-- [ ] **1.3 Environment Installation** ⏭️ *SKIPPED – to be run on university GPU server*
-  - [ ] Setup Conda/Python virtual environment (Python 3.10 recommended)
-  - [ ] Install dependencies for data processing (`python-docx`, `pandas`, etc.)
-  - [ ] Clone the official `DiffSynth-Studio` repository
-  - [ ] Install `DiffSynth-Studio` in editable mode (`pip install -e .`)
+- [x] **1.3 Environment Installation** ✅ *Environment set up on GPU server*
+  - [x] Setup Conda/Python virtual environment (Python 3.10 recommended)
+  - [x] Install dependencies for data processing (`python-docx`, `pandas`, etc.)
+  - [x] Clone the official `DiffSynth-Studio` repository
+  - [x] Install `DiffSynth-Studio` in editable mode (`pip install -e .`)
 
 ---
 
@@ -78,9 +78,9 @@ This task list serves as the operational checklist for executing the **IntreccIA
     - [x] `data/id10/zimage/metadata_zimage.jsonl` (Z-Image specific captions)
     - [x] `data/id10/flux/metadata_flux.jsonl` (Flux specific captions)
     - [x] `data/id10/sdxl/metadata_sdxl.jsonl` (SDXL specific captions)
-- [ ] **3.5 Baseline Model Verification (Pre-Training)** ⏭️ *SKIPPED – to be run on university GPU server*
-  - [ ] Test the base models (Z-Image, Flux, SDXL) by running inference using a sample of the generated captions
-  - [ ] Inspect and save the generated images to establish a **before-LoRA** baseline for visual comparison
+- [x] **3.5 Baseline Model Verification (Pre-Training)** ✅ *Completed baseline inference tests*
+  - [x] Test the base models (Z-Image, Flux, SDXL) by running inference using a sample of the generated captions
+  - [x] Inspect and save the generated images to establish a **before-LoRA** baseline for visual comparison
 
 ---
 
