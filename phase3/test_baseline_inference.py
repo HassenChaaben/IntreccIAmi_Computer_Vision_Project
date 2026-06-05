@@ -49,15 +49,15 @@ def run_flux_inference(caption: str, output_path: str):
         import torch
         from diffsynth import ModelManager, FluxImagePipeline
         
-        # 1. Initialize model manager on CUDA GPU
-        print("Initializing ModelManager (bfloat16, CUDA)...")
-        model_manager = ModelManager(device="cuda", torch_dtype=torch.bfloat16)
+        # 1. Initialize model manager and load FLUX-dev models
+        print("Initializing ModelManager and loading FLUX-dev models (bfloat16, CUDA)...")
+        model_manager = ModelManager(
+            device="cuda", 
+            torch_dtype=torch.bfloat16,
+            model_id_list=["FLUX.1-dev"]
+        )
         
-        # 2. Load FLUX-dev weights (Downloads automatically if not cached)
-        print("Loading FLUX-dev models...")
-        model_manager.load_models_from_wangyaning(model_names=["flux-dev"])
-        
-        # 3. Create pipeline
+        # 2. Create pipeline
         pipe = FluxImagePipeline.from_model_manager(model_manager)
         
         # 4. Generate image
@@ -79,8 +79,7 @@ def run_flux_inference(caption: str, output_path: str):
         print("-" * 65)
         print("""from diffsynth import ModelManager, FluxImagePipeline
 import torch
-model_manager = ModelManager(device="cuda", torch_dtype=torch.bfloat16)
-model_manager.load_models_from_wangyaning(model_names=["flux-dev"])
+model_manager = ModelManager(device="cuda", torch_dtype=torch.bfloat16, model_id_list=["FLUX.1-dev"])
 pipe = FluxImagePipeline.from_model_manager(model_manager)
 image = pipe(prompt=prompt, num_inference_steps=30, width=1024, height=1024)
 image.save(output_path)""")
@@ -97,16 +96,15 @@ def run_sdxl_inference(caption: str, output_path: str, is_zimage: bool = False):
         import torch
         from diffsynth import ModelManager, SDXLImagePipeline
         
-        # 1. Initialize model manager on CUDA GPU
-        print("Initializing ModelManager (float16, CUDA)...")
-        model_manager = ModelManager(device="cuda", torch_dtype=torch.float16)
+        # 1. Initialize model manager and load SDXL base models
+        print(f"Initializing ModelManager and loading SDXL models (float16, CUDA)...")
+        model_manager = ModelManager(
+            device="cuda", 
+            torch_dtype=torch.float16,
+            model_id_list=["StableDiffusionXL_v1"]
+        )
         
-        # 2. Load SDXL base weights
-        print(f"Loading {model_desc} base models...")
-        # Z-Image and SDXL both run on the SDXL pipeline architecture
-        model_manager.load_models_from_wangyaning(model_names=["sdxl_base"])
-        
-        # 3. Create pipeline
+        # 2. Create pipeline
         pipe = SDXLImagePipeline.from_model_manager(model_manager)
         
         # 4. Generate image
@@ -128,8 +126,7 @@ def run_sdxl_inference(caption: str, output_path: str, is_zimage: bool = False):
         print("-" * 65)
         print(f"""from diffsynth import ModelManager, SDXLImagePipeline
 import torch
-model_manager = ModelManager(device="cuda", torch_dtype=torch.float16)
-model_manager.load_models_from_wangyaning(model_names=["sdxl_base"])
+model_manager = ModelManager(device="cuda", torch_dtype=torch.float16, model_id_list=["StableDiffusionXL_v1"])
 pipe = SDXLImagePipeline.from_model_manager(model_manager)
 image = pipe(prompt=prompt, num_inference_steps=30, width=1024, height=1024)
 image.save(output_path)""")
