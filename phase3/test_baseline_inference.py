@@ -14,8 +14,12 @@ import json
 import sys
 from pathlib import Path
 
-# Resolve project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Resolve project root (handles running from either 'phase3' folder or project root)
+script_dir = Path(__file__).resolve().parent
+if (script_dir / "data").exists():
+    PROJECT_ROOT = script_dir
+else:
+    PROJECT_ROOT = script_dir.parent
 
 def load_caption(jsonl_path: Path, index: int):
     """Load a caption and task info from a captioned JSONL file."""
