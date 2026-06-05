@@ -47,20 +47,22 @@ def run_flux_inference(caption: str, output_path: str):
     
     try:
         import torch
-        from diffsynth import ModelManager, FluxImagePipeline
+        from diffsynth.pipelines.flux_image import FluxImagePipeline, ModelConfig
         
-        # 1. Initialize model manager and load FLUX-dev models
-        print("Initializing ModelManager and loading FLUX-dev models (bfloat16, CUDA)...")
-        model_manager = ModelManager(
-            device="cuda", 
+        # 1. Initialize FluxImagePipeline using from_pretrained
+        print("Initializing FluxImagePipeline and loading FLUX-dev models (bfloat16, CUDA)...")
+        pipe = FluxImagePipeline.from_pretrained(
             torch_dtype=torch.bfloat16,
-            model_id_list=["FLUX.1-dev"]
+            device="cuda",
+            model_configs=[
+                ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="flux1-dev.safetensors"),
+                ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="text_encoder/model.safetensors"),
+                ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="text_encoder_2/*.safetensors"),
+                ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="ae.safetensors"),
+            ]
         )
         
-        # 2. Create pipeline
-        pipe = FluxImagePipeline.from_model_manager(model_manager)
-        
-        # 4. Generate image
+        # 2. Generate image
         print("Executing image generation pipeline (30 steps)...")
         image = pipe(
             prompt=caption,
@@ -69,18 +71,26 @@ def run_flux_inference(caption: str, output_path: str):
             height=1024
         )
         
-        # 5. Save output
+        # 3. Save output
         image.save(output_path)
         print(f"[OK] Image saved successfully to: {output_path}")
         
-    except ImportError:
-        print("[WARNING] DiffSynth-Studio or PyTorch not available in local environment.")
+    except ImportError as e:
+        print(f"[WARNING] DiffSynth-Studio or PyTorch not available in local environment: {e}")
         print("This script is ready to run on your GPU server. Here is the code it executes:")
         print("-" * 65)
-        print("""from diffsynth import ModelManager, FluxImagePipeline
+        print("""from diffsynth.pipelines.flux_image import FluxImagePipeline, ModelConfig
 import torch
-model_manager = ModelManager(device="cuda", torch_dtype=torch.bfloat16, model_id_list=["FLUX.1-dev"])
-pipe = FluxImagePipeline.from_model_manager(model_manager)
+pipe = FluxImagePipeline.from_pretrained(
+    torch_dtype=torch.bfloat16,
+    device="cuda",
+    model_configs=[
+        ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="flux1-dev.safetensors"),
+        ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="text_encoder/model.safetensors"),
+        ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="text_encoder_2/*.safetensors"),
+        ModelConfig(model_id="black-forest-labs/FLUX.1-dev", origin_file_pattern="ae.safetensors"),
+    ]
+)
 image = pipe(prompt=prompt, num_inference_steps=30, width=1024, height=1024)
 image.save(output_path)""")
         print("-" * 65)
@@ -93,20 +103,25 @@ def run_sdxl_inference(caption: str, output_path: str):
     
     try:
         import torch
-        from diffsynth import ModelManager, SDXLImagePipeline
+        from diffsynth.core import ModelConfig
+        from diffsynth.pipelines.stable_diffusion_xl import StableDiffusionXLPipeline
         
-        # 1. Initialize model manager and load SDXL base models
-        print(f"Initializing ModelManager and loading SDXL models (float16, CUDA)...")
-        model_manager = ModelManager(
-            device="cuda", 
+        # 1. Initialize StableDiffusionXLPipeline using from_pretrained
+        print(f"Initializing StableDiffusionXLPipeline and loading SDXL models (float16, CUDA)...")
+        pipe = StableDiffusionXLPipeline.from_pretrained(
             torch_dtype=torch.float16,
-            model_id_list=["StableDiffusionXL_v1"]
+            device="cuda",
+            model_configs=[
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder_2/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="unet/diffusion_pytorch_model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+            ],
+            tokenizer_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer/"),
+            tokenizer_2_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer_2/"),
         )
         
-        # 2. Create pipeline
-        pipe = SDXLImagePipeline.from_model_manager(model_manager)
-        
-        # 3. Generate image
+        # 2. Generate image
         print("Executing image generation pipeline (30 steps)...")
         image = pipe(
             prompt=caption,
@@ -115,18 +130,29 @@ def run_sdxl_inference(caption: str, output_path: str):
             height=1024
         )
         
-        # 4. Save output
+        # 3. Save output
         image.save(output_path)
         print(f"[OK] Image saved successfully to: {output_path}")
         
-    except ImportError:
-        print("[WARNING] DiffSynth-Studio or PyTorch not available in local environment.")
+    except ImportError as e:
+        print(f"[WARNING] DiffSynth-Studio or PyTorch not available in local environment: {e}")
         print("This script is ready to run on your GPU server. Here is the code it executes:")
         print("-" * 65)
-        print(f"""from diffsynth import ModelManager, SDXLImagePipeline
+        print("""from diffsynth.core import ModelConfig
+from diffsynth.pipelines.stable_diffusion_xl import StableDiffusionXLPipeline
 import torch
-model_manager = ModelManager(device="cuda", torch_dtype=torch.float16, model_id_list=["StableDiffusionXL_v1"])
-pipe = SDXLImagePipeline.from_model_manager(model_manager)
+pipe = StableDiffusionXLPipeline.from_pretrained(
+    torch_dtype=torch.float16,
+    device="cuda",
+    model_configs=[
+        ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
+        ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder_2/model.safetensors"),
+        ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="unet/diffusion_pytorch_model.safetensors"),
+        ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+    ],
+    tokenizer_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer/"),
+    tokenizer_2_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer_2/"),
+)
 image = pipe(prompt=prompt, num_inference_steps=30, width=1024, height=1024)
 image.save(output_path)""")
         print("-" * 65)
