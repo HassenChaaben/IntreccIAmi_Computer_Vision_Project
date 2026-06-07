@@ -127,7 +127,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
 - [ ] **5.2 Custom Dataset Paths**
   - [ ] Map model-specific datasets (`data/id10/zimage/`, `data/id10/flux/`, `data/id10/sdxl/`) to their training scripts
 - [ ] **5.3 Execution & Epoch Tuning**
-  - [ ] Train respective LoRAs at rank 8–16 with controlled learning rate
+  - [ ] Train respective LoRAs at rank 16–32 with controlled learning rate
   - [ ] Frequently monitor validation generations (do not optimize only for low loss)
   - [ ] Safety step validation tests to avoid text-image divergence or style collapse
 - [ ] **5.4 Post-Training Inference Validation**
