@@ -84,5 +84,4 @@ In addition to the raw `.jsonl` files and the sidecar `.txt` files, a clean two-
 ## 4. Token Consistency Note
 
 > [!NOTE]
-> As noted in the professor's feedback, although Z-Image's text encoder can support prompts up to 512 tokens, we are maintaining captions around **160 tokens** to ensure structural and content consistency across the different image generation models (Z-Image and Flux) before starting LoRA fine-tuning.
-
+> As noted , although Z-Image's text encoder can support prompts up to 512 tokens, we are maintaining captions around **160 tokens** to ensure structural and content consistency across the different image generation models (Z-Image and Flux) before starting LoRA fine-tuning.
