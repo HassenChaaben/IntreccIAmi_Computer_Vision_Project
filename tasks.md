@@ -30,7 +30,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [x] For each task, extract the image identifier from `data.image`, `image.original_path`, `image.filename`, or `file_upload`
   - [x] Extract the clean filename (e.g., `IMG_0259.jpg`)
   - [x] Verify that the file exists in the `data/images/` directory
-  - [x] Log any missing images or parsing anomalies in a report (`data/qa_report.csv`)
+  - [x] Log any missing images or parsing anomalies in a report (`data/metadata_extraction_qa_report.csv`)
 - [x] **2.3 Field Normalization & Parsing Script** ✅ `phase2/normalize_dataset.py`
   - [x] Build a Python parser that processes annotations (`annotations[].result`) for each valid task
   - [x] Map Label Studio XML names to normalized fields:
@@ -93,7 +93,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [x] Ensure that captions do not leak internal metadata (coordinates, file names, Label Studio IDs, JSON field names, bbox values, internal codes like BTG-XXXX)
   - [x] Validate that every valid entry has a non-empty caption
   - [x] Validate sidecar `.txt` files containing clean model-specific prompt lines next to each image
-  - [x] Generate `qa_report.csv` with: missing images count, empty captions, missing fields, overly long captions, manually checked examples
+  - [x] Generate `metadata_extraction_qa_report.csv` with: missing images count, empty captions, missing fields, overly long captions, manually checked examples
 - [x] **4.2 Packaging & Final Directory Layout** ✅ `phase3/run_phase3.py`
   - [x] Setup the final directory layout for the 3 target models as specified in the instructions (§9):
     - [x] **Z-Image** (`data/id10/zimage/`):
@@ -164,7 +164,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [ ] Deliver the three distinct trained LoRA weight files and configurations
   - [ ] Deliver the prompt templates with input/output examples
   - [ ] Provide before/after LoRA comparison reports across Z-Image, Flux, and SDXL
-  - [ ] Include `qa_report.csv` and all per-model QA reports
+  - [ ] Include `metadata_extraction_qa_report.csv` and all per-model QA reports
 
 ---
 

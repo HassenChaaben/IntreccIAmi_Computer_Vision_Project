@@ -54,7 +54,7 @@ For each task:
 
 ### Design Decisions
 - **Edge Case Handling:** As discovered in Phase 1, Label Studio sometimes replaces spaces with underscores in filenames (e.g. `IMG_0198 DA SISTEMARE.jpg` vs `IMG_0198_DA_SISTEMARE.jpg`). The script implements a fallback mechanism (`find_actual_image_path`) to check for the space-separated version if the underscored version is missing.
-- **QA Reporting:** If an image is truly missing, the task fails and an entry is logged in `qa_report.csv`.
+- **QA Reporting:** If an image is truly missing, the task fails and an entry is logged in `metadata_extraction_qa_report.csv`.
 
 ---
 
@@ -82,7 +82,7 @@ The script dynamically searches for indexed fields (`poste_1_...` to `poste_9_..
 
 ### Expected Output
 1. **`data/normalized_metadata.jsonl`:** One valid JSON object per line.
-2. **`data/qa_report.csv`:** A CSV listing `task_id` and `issue` for tasks missing key data or images.
+2. **`data/metadata_extraction_qa_report.csv`:** A CSV listing `task_id` and `issue` for tasks missing key data or images.
 
 ---
 
