@@ -1,0 +1,16 @@
+CUDA_VISIBLE_DEVICES=1,2 accelerate launch --num_processes 2 \
+  examples/stable_diffusion_xl/model_training/train.py \
+  --dataset_base_path /home/project_id_10/DiffSynth-Studio/data/id10/sdxl \
+  --dataset_metadata_path /home/project_id_10/DiffSynth-Studio/data/id10/sdxl/metadata_sdxl.jsonl \
+  --height 1024 \
+  --width 1024 \
+  --dataset_repeat 20 \
+  --model_id_with_origin_paths "stabilityai/stable-diffusion-xl-base-1.0:text_encoder/model.safetensors,stabilityai/stable-diffusion-xl-base-1.0:text_encoder_2/model.safetensors,stabilityai/stable-diffusion-xl-base-1.0:unet/diffusion_pytorch_model.safetensors,stabilityai/stable-diffusion-xl-base-1.0:vae/diffusion_pytorch_model.safetensors" \
+  --learning_rate 1e-4 \
+  --num_epochs 5 \
+  --remove_prefix_in_ckpt "pipe.unet." \
+  --output_path "/home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora" \
+  --lora_base_model "unet" \
+  --lora_target_modules "" \
+  --lora_rank 32 \
+  --use_gradient_checkpointing
