@@ -84,7 +84,7 @@ def resolve_project_root():
 
 def main():
     parser = argparse.ArgumentParser(description="SDXL Combined Seen and Unseen Image Generation Script")
-    parser.add_argument("--epoch", type=int, default=1, help="LoRA epoch to validate (default: 1)")
+    parser.add_argument("--epoch", type=int, default=1, choices=[0, 1, 2], help="LoRA epoch to validate (0, 1, or 2, default: 1)")
     parser.add_argument("--device", type=str, default="cuda", help="Inference device (default: cuda)")
     parser.add_argument("--skip_before", action="store_true", help="Skip base model (before) generations")
     args = parser.parse_args()
