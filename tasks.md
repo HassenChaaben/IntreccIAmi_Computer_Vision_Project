@@ -119,21 +119,27 @@ This task list serves as the operational checklist for executing the **IntreccIA
 
 ## Phase 5: LoRA Training (DiffSynth-Studio)
 
-- [ ] **5.1 Setup Base Models**
-  - [ ] Configure DiffSynth-Studio recipes for:
-    - [ ] **Z-Image** (follow the corresponding LoRA training script)
-    - [ ] **FLUX.1-schnell / dev**
-    - [ ] **SDXL** base model
-- [ ] **5.2 Custom Dataset Paths**
-  - [ ] Map model-specific datasets (`data/id10/zimage/`, `data/id10/flux/`, `data/id10/sdxl/`) to their training scripts
-- [ ] **5.3 Execution & Epoch Tuning**
-  - [ ] Train respective LoRAs at rank 16–32 with controlled learning rate
-  - [ ] Frequently monitor validation generations (do not optimize only for low loss)
-  - [ ] Safety step validation tests to avoid text-image divergence or style collapse
-- [ ] **5.4 Post-Training Inference Validation**
-  - [ ] Run inference on the trained LoRA models using the same sample captions
-  - [ ] Verify that the generated outputs successfully incorporate the `intrecciami-style` texture details
-  - [ ] Save **after-LoRA** generated images alongside the **before-LoRA** baseline for comparison
+- [x] **5.1 Setup Base Models** ✅
+  - [x] Configure DiffSynth-Studio recipes for:
+    - [x] **Z-Image** — DiT architecture, `Tongyi-MAI/Z-Image` + `Z-Image-Turbo` tokenizer
+    - [x] **FLUX.1-dev** — Double-stream DiT, `black-forest-labs/FLUX.1-dev`
+    - [ ] **SDXL** base model — *Not trained (skipped due to GPU time constraints)*
+- [x] **5.2 Custom Dataset Paths** ✅ `phase5/5.2.md`
+  - [x] Map model-specific datasets (`data/id10/zimage/`, `data/id10/flux/`) to their training scripts
+  - [x] Convert metadata key `"caption"` → `"prompt"` for DiffSynth-Studio compatibility
+- [x] **5.3 Execution & Epoch Tuning** ✅ `phase5/5.3.md`
+  - [x] **Z-Image**: 1 epoch trained (epoch-0), single GPU, rank 16, `dataset_repeat 50`
+  - [x] **FLUX**: 2 epochs trained (epoch-0, epoch-1), multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`), rank 32, `dataset_repeat 20`
+    - [x] Epoch-0: Fresh training → `epoch-0.safetensors` (see `phase5/code_used_to_fine_tune_flux_epoch_0`)
+    - [x] Epoch-1: Resumed from epoch-0 with `--lora_checkpoint` → `epoch-1.safetensors` (see `phase5/code_used_to_fine_tune_flux_epoch_1`)
+  - [ ] SDXL: *Not trained*
+- [x] **5.4 Post-Training Inference Validation** ✅ `phase5/5.4.md`
+  - [x] **Z-Image before/after** on 50 unseen prompts (epoch-0) → `z_score_generate_unseen.py`
+  - [x] **Z-Image before/after** on 10 seen prompts (epoch-0, epoch-1) → `z_score_generate_seen.py`
+  - [x] **FLUX LoRA** on 50 unseen prompts (epoch-0) → `flux_generate_unseen.py`
+  - [x] **FLUX LoRA** on 10 seen prompts (epoch-0) → `flux_generate_seen.py`
+  - [x] **FLUX LoRA** on 50 unseen prompts (epoch-1) → `flux_generate_unseen_epoch_1.py`
+  - [x] Results saved in `Results_before_after_training/` with subfolders per experiment
 
 ---
 
