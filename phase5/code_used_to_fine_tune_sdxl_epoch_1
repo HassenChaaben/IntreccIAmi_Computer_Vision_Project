@@ -4,8 +4,8 @@ cp /home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora/epoch-0.
 
 CUDA_VISIBLE_DEVICES=1,2 accelerate launch --num_processes 2 \
   examples/stable_diffusion_xl/model_training/train.py \
-  --dataset_base_path /home/project_id_10/DiffSynth-Studio/data/id10/sdxl \
-  --dataset_metadata_path /home/project_id_10/DiffSynth-Studio/data/id10/sdxl/metadata_sdxl.jsonl \
+  --dataset_base_path /home/project_id_10/Captioning/data/id10/sdxl \
+  --dataset_metadata_path /home/project_id_10/Captioning/data/id10/sdxl/metadata_sdxl.jsonl \
   --height 1024 \
   --width 1024 \
   --dataset_repeat 20 \
