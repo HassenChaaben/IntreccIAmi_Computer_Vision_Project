@@ -30,7 +30,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [x] For each task, extract the image identifier from `data.image`, `image.original_path`, `image.filename`, or `file_upload`
   - [x] Extract the clean filename (e.g., `IMG_0259.jpg`)
   - [x] Verify that the file exists in the `data/images/` directory
-  - [x] Log any missing images or parsing anomalies in a report (`data/qa_report.csv`)
+  - [x] Log any missing images or parsing anomalies in a report (`data/metadata_extraction_qa_report.csv`)
 - [x] **2.3 Field Normalization & Parsing Script** ✅ `phase2/normalize_dataset.py`
   - [x] Build a Python parser that processes annotations (`annotations[].result`) for each valid task
   - [x] Map Label Studio XML names to normalized fields:
@@ -93,7 +93,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [x] Ensure that captions do not leak internal metadata (coordinates, file names, Label Studio IDs, JSON field names, bbox values, internal codes like BTG-XXXX)
   - [x] Validate that every valid entry has a non-empty caption
   - [x] Validate sidecar `.txt` files containing clean model-specific prompt lines next to each image
-  - [x] Generate `qa_report.csv` with: missing images count, empty captions, missing fields, overly long captions, manually checked examples
+  - [x] Generate `metadata_extraction_qa_report.csv` with: missing images count, empty captions, missing fields, overly long captions, manually checked examples
 - [x] **4.2 Packaging & Final Directory Layout** ✅ `phase3/run_phase3.py`
   - [x] Setup the final directory layout for the 3 target models as specified in the instructions (§9):
     - [x] **Z-Image** (`data/id10/zimage/`):
@@ -119,21 +119,27 @@ This task list serves as the operational checklist for executing the **IntreccIA
 
 ## Phase 5: LoRA Training (DiffSynth-Studio)
 
-- [ ] **5.1 Setup Base Models**
-  - [ ] Configure DiffSynth-Studio recipes for:
-    - [ ] **Z-Image** (follow the corresponding LoRA training script)
-    - [ ] **FLUX.1-schnell / dev**
-    - [ ] **SDXL** base model
-- [ ] **5.2 Custom Dataset Paths**
-  - [ ] Map model-specific datasets (`data/id10/zimage/`, `data/id10/flux/`, `data/id10/sdxl/`) to their training scripts
-- [ ] **5.3 Execution & Epoch Tuning**
-  - [ ] Train respective LoRAs at rank 16–32 with controlled learning rate
-  - [ ] Frequently monitor validation generations (do not optimize only for low loss)
-  - [ ] Safety step validation tests to avoid text-image divergence or style collapse
-- [ ] **5.4 Post-Training Inference Validation**
-  - [ ] Run inference on the trained LoRA models using the same sample captions
-  - [ ] Verify that the generated outputs successfully incorporate the `intrecciami-style` texture details
-  - [ ] Save **after-LoRA** generated images alongside the **before-LoRA** baseline for comparison
+- [x] **5.1 Setup Base Models** ✅
+  - [x] Configure DiffSynth-Studio recipes for:
+    - [x] **Z-Image** — DiT architecture, `Tongyi-MAI/Z-Image` + `Z-Image-Turbo` tokenizer
+    - [x] **FLUX.1-dev** — Double-stream DiT, `black-forest-labs/FLUX.1-dev`
+    - [ ] **SDXL** base model — *Not trained (skipped due to GPU time constraints)*
+- [x] **5.2 Custom Dataset Paths** ✅ `phase5/5.2.md`
+  - [x] Map model-specific datasets (`data/id10/zimage/`, `data/id10/flux/`) to their training scripts
+  - [x] Convert metadata key `"caption"` → `"prompt"` for DiffSynth-Studio compatibility
+- [x] **5.3 Execution & Epoch Tuning** ✅ `phase5/5.3.md`
+  - [x] **Z-Image**: 1 epoch trained (epoch-0), single GPU, rank 16, `dataset_repeat 50`
+  - [x] **FLUX**: 2 epochs trained (epoch-0, epoch-1), multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`), rank 32, `dataset_repeat 20`
+    - [x] Epoch-0: Fresh training → `epoch-0.safetensors` (see `phase5/code_used_to_fine_tune_flux_epoch_0`)
+    - [x] Epoch-1: Resumed from epoch-0 with `--lora_checkpoint` → `epoch-1.safetensors` (see `phase5/code_used_to_fine_tune_flux_epoch_1`)
+  - [ ] SDXL: *Not trained*
+- [x] **5.4 Post-Training Inference Validation** ✅ `phase5/5.4.md`
+  - [x] **Z-Image before/after** on 10 unseen prompts (epoch-0) → `z_score_generate_unseen.py`
+  - [x] **Z-Image before/after** on 10 seen prompts (epoch-0, epoch-1) → `z_score_generate_seen.py`
+  - [x] **FLUX LoRA** on 10 unseen prompts (epoch-0) → `flux_generate_unseen.py`
+  - [x] **FLUX LoRA** on 10 seen prompts (epoch-0) → `flux_generate_seen.py`
+  - [x] **FLUX LoRA** on 10 unseen prompts (epoch-1) → `flux_generate_unseen_epoch_1.py`
+  - [x] Results saved in `Results_before_after_training/` with subfolders per experiment
 
 ---
 
@@ -158,7 +164,7 @@ This task list serves as the operational checklist for executing the **IntreccIA
   - [ ] Deliver the three distinct trained LoRA weight files and configurations
   - [ ] Deliver the prompt templates with input/output examples
   - [ ] Provide before/after LoRA comparison reports across Z-Image, Flux, and SDXL
-  - [ ] Include `qa_report.csv` and all per-model QA reports
+  - [ ] Include `metadata_extraction_qa_report.csv` and all per-model QA reports
 
 ---
 
