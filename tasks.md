@@ -134,11 +134,11 @@ This task list serves as the operational checklist for executing the **IntreccIA
     - [x] Epoch-1: Resumed from epoch-0 with `--lora_checkpoint` → `epoch-1.safetensors` (see `phase5/code_used_to_fine_tune_flux_epoch_1`)
   - [ ] SDXL: *Not trained*
 - [x] **5.4 Post-Training Inference Validation** ✅ `phase5/5.4.md`
-  - [x] **Z-Image before/after** on 50 unseen prompts (epoch-0) → `z_score_generate_unseen.py`
+  - [x] **Z-Image before/after** on 10 unseen prompts (epoch-0) → `z_score_generate_unseen.py`
   - [x] **Z-Image before/after** on 10 seen prompts (epoch-0, epoch-1) → `z_score_generate_seen.py`
-  - [x] **FLUX LoRA** on 50 unseen prompts (epoch-0) → `flux_generate_unseen.py`
+  - [x] **FLUX LoRA** on 10 unseen prompts (epoch-0) → `flux_generate_unseen.py`
   - [x] **FLUX LoRA** on 10 seen prompts (epoch-0) → `flux_generate_seen.py`
-  - [x] **FLUX LoRA** on 50 unseen prompts (epoch-1) → `flux_generate_unseen_epoch_1.py`
+  - [x] **FLUX LoRA** on 10 unseen prompts (epoch-1) → `flux_generate_unseen_epoch_1.py`
   - [x] Results saved in `Results_before_after_training/` with subfolders per experiment
 
 ---
