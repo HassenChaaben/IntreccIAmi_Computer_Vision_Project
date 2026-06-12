@@ -1,3 +1,5 @@
+cd /home/project_id_10/DiffSynth-Studio
+
 CUDA_VISIBLE_DEVICES=1,2 accelerate launch --num_processes 2 \
   examples/stable_diffusion_xl/model_training/train.py \
   --dataset_base_path /home/project_id_10/DiffSynth-Studio/data/id10/sdxl \

@@ -1,3 +1,5 @@
+cd /home/project_id_10/DiffSynth-Studio
+
 cp /home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora/epoch-0.safetensors /home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora/epoch-0_original.safetensors
 
 CUDA_VISIBLE_DEVICES=1,2 accelerate launch --num_processes 2 \
