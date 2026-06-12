@@ -88,7 +88,6 @@ def main():
     parser = argparse.ArgumentParser(description="Z-Image Combined Seen and Unseen Image Generation Script")
     parser.add_argument("--epoch", type=int, default=4, help="LoRA epoch to validate (default: 4)")
     parser.add_argument("--device", type=str, default="cuda", help="Inference device (default: cuda)")
-    parser.add_argument("--skip_before", action="store_true", help="Skip base model (before) generations")
     args = parser.parse_args()
 
     project_root = resolve_project_root()
@@ -154,59 +153,13 @@ def main():
     )
 
     # ==========================================
-    # Phase 1: Generating BEFORE images (Base model)
-    # ==========================================
-    if not args.skip_before:
-        print("\n=== Generating BEFORE images (Base model) ===")
-        
-        # 1. Seen Prompts (Before)
-        print(f"\n--- Generating {len(SEEN_PROMPTS)} BEFORE images for SEEN prompts ---")
-        for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
-            filename = f"before_seen_{idx}.png"
-            filepath = output_dir / filename
-            if filepath.exists():
-                print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
-                continue
-            print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Generating: {filename}")
-            image = pipe(
-                prompt=prompt,
-                seed=42,
-                rand_device=args.device,
-                num_inference_steps=50,
-                cfg_scale=4.0,
-                width=1024,
-                height=1024
-            )
-            image.save(str(filepath))
-
-        # 2. Unseen Prompts (Before)
-        print(f"\n--- Generating {len(UNSEEN_PROMPTS)} BEFORE images for UNSEEN prompts ---")
-        for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
-            filename = f"before_unseen_{idx}.png"
-            filepath = output_dir / filename
-            if filepath.exists():
-                print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
-                continue
-            print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Generating: {filename}")
-            image = pipe(
-                prompt=prompt,
-                seed=42,
-                rand_device=args.device,
-                num_inference_steps=50,
-                cfg_scale=4.0,
-                width=1024,
-                height=1024
-            )
-            image.save(str(filepath))
-
-    # ==========================================
     # Load LoRA Weights
     # ==========================================
     print(f"\n=== Loading LoRA weights onto transformer: {lora_path} ===")
     pipe.load_lora(module=pipe.dit, lora_config=str(lora_path))
 
     # ==========================================
-    # Phase 2: Generating AFTER images (LoRA model)
+    # Phase 1: Generating AFTER images (LoRA model)
     # ==========================================
     print("\n=== Generating AFTER images (Fine-tuned model) ===")
 
