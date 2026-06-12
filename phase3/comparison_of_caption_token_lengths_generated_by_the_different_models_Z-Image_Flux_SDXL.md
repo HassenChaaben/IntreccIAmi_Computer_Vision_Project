@@ -75,13 +75,20 @@ This document summarizes the token and word length analysis across the generated
 
 ## 3. CSV Dataset Links
 
-In addition to the raw `.jsonl` files and the sidecar `.txt` files, a clean two-column CSV file (`image_path`, `caption`) has been generated for each model for easy review:
+In addition to the raw `.jsonl` files and the sidecar `.txt` files, a clean two-column CSV file (`image_path`, `caption`) has been generated for each model for easy review.
 
+### Relative Local / Repository Links
 1. **Z-Image Captions CSV**: [captions_zimage.csv](../data/id10/zimage/captions_zimage.csv)
 2. **Flux Captions CSV**: [captions_flux.csv](../data/id10/flux/captions_flux.csv)
 3. **SDXL Captions CSV**: [captions_sdxl.csv](../data/id10/sdxl/captions_sdxl.csv)
 
+### Direct GitHub Links
+* **Token Comparison Report (This File)**: [GitHub Link](https://github.com/HassenChaaben/Captioning/blob/metadata-parsing-and-normalization/phase3/comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md)
+* **Z-Image Captions CSV**: [GitHub Link](https://github.com/HassenChaaben/Captioning/blob/metadata-parsing-and-normalization/data/id10/zimage/captions_zimage.csv)
+* **Flux Captions CSV**: [GitHub Link](https://github.com/HassenChaaben/Captioning/blob/metadata-parsing-and-normalization/data/id10/flux/captions_flux.csv)
+* **SDXL Captions CSV**: [GitHub Link](https://github.com/HassenChaaben/Captioning/blob/metadata-parsing-and-normalization/data/id10/sdxl/captions_sdxl.csv)
+
 ## 4. Token Consistency Note
 
 > [!NOTE]
-> As noted , although Z-Image's text encoder can support prompts up to 512 tokens, we are maintaining captions around **160 tokens** to ensure structural and content consistency across the different image generation models (Z-Image and Flux) before starting LoRA fine-tuning.
+> As noted, although Z-Image's text encoder can support prompts up to 512 tokens, we are maintaining captions around **160 tokens** to ensure structural and content consistency across the different image generation models (Z-Image and Flux) before starting LoRA fine-tuning.
