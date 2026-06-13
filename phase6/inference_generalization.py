@@ -135,12 +135,16 @@ def main():
 
     elif args.model == "sdxl":
         pipe = StableDiffusionXLPipeline.from_pretrained(
-            torch_dtype=torch.float16,
+            torch_dtype=torch.float32,
             device=args.device,
             model_configs=[
-                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="sd_xl_base_1.0.safetensors"),
-                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="sd_xl_base_1.0_vae.safetensors")
-            ]
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder_2/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="unet/diffusion_pytorch_model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+            ],
+            tokenizer_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer/"),
+            tokenizer_2_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer_2/"),
         )
         pipe.load_lora(pipe.unet, str(lora_path), alpha=1)
 
