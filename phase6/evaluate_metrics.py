@@ -39,7 +39,7 @@ def main():
         import torch
         import clip
     except ImportError:
-        print("[ERROR] PyTorch and openai-clip are required. Run: pip install torch torchvision clip-anywhere")
+        print("[ERROR] PyTorch and openai-clip are required. Run: pip install ftfy regex tqdm && pip install git+https://github.com/openai/CLIP.git")
         sys.exit(1)
 
     device = torch.device(torch_device)
