@@ -1,6 +1,6 @@
-# Phase 6: Evaluation, Generalization & Deliverables Report
+# Phase 6: Evaluation, Generalization & Deliverables Report Template
 
-This document details the final phase of the **IntreccIAmi (ID 10)** project: executing generalization inference, computing automated quantitative scores (CLIPScore, LPIPS, CLIP-IQA), conducting qualitative VLM-as-a-judge evaluations, and consolidating all code deliverables.
+This document details the setup and execution instructions for the final phase of the **IntreccIAmi (ID 10)** project: executing generalization inference, computing automated quantitative scores (CLIPScore, LPIPS, CLIP-IQA), and conducting qualitative VLM-as-a-judge evaluations on the GPU server.
 
 ---
 
@@ -14,7 +14,7 @@ While Phases 3 and 5 verified the models' behavior on the same distribution as t
 
 ## 2. Generalization Test Prompts (10 New Prompts)
 
-To assess LoRA generalization capacity, we constructed 10 model-tailored test prompts containing new target objects and diverse composition styles:
+To assess LoRA generalization capacity, run inference with the following 10 model-tailored test prompts containing new target objects and diverse composition styles:
 
 1. **Lamp Shade**: 
    `intrecciami-style: A minimalist woven rattan lamp shade featuring a simple repeatable lattice texture, casting soft geometric shadows on a warm background. Studio lighting, premium texture, high resolution, macro photography.`
@@ -39,82 +39,91 @@ To assess LoRA generalization capacity, we constructed 10 model-tailored test pr
 
 ---
 
-## 3. Execution & Scripts
+## 3. Execution Instructions (GPU Server)
 
-Three new scripts have been added to the codebase in the [phase6](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/phase6/) folder:
+Run the scripts below sequentially on your GPU-enabled server to generate the comparison set and calculate the evaluation metrics.
 
-1. **[inference_generalization.py](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/phase6/inference_generalization.py)**: 
-   Loads the trained LoRA weights for Flux, SDXL, and Z-Image and runs inference across the 10 generalization test prompts, saving outputs to `Results_before_after_training/phase6_generations/`.
-2. **[evaluate_metrics.py](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/phase6/evaluate_metrics.py)**: 
-   Computes or prints quantitative statistics including **CLIPScore**, **LPIPS**, and **CLIP-IQA** for all three fine-tuned models.
-3. **[mllm_judge.py](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/phase6/mllm_judge.py)**: 
-   Runs the VLM-as-a-judge pipeline to grade generated images across a 5-point qualitative rubric.
+### Step 3.1: Generate Generalization Images
+Execute the inference script for each model:
+
+```bash
+# 1. FLUX.1-dev LoRA (Epoch 1)
+python phase6/inference_generalization.py --model flux --epoch 1 --device cuda
+
+# 2. SDXL LoRA (Epoch 4)
+python phase6/inference_generalization.py --model sdxl --epoch 4 --device cuda
+
+# 3. Z-Image LoRA (Epoch 4)
+python phase6/inference_generalization.py --model zimage --epoch 4 --device cuda
+```
+*Output images will be saved under `Results_before_after_training/phase6_generations/{model_name}/` alongside sidecar `.txt` prompts.*
+
+### Step 3.2: Run Automated Evaluation Metrics
+Calculate the CLIPScore, LPIPS, and CLIP-IQA scores for each set of outputs:
+
+```bash
+# Evaluate FLUX
+python phase6/evaluate_metrics.py --image_dir Results_before_after_training/phase6_generations/flux/ --ref_dir data/images/ --device cuda
+
+# Evaluate SDXL
+python phase6/evaluate_metrics.py --image_dir Results_before_after_training/phase6_generations/sdxl/ --ref_dir data/images/ --device cuda
+
+# Evaluate Z-Image
+python phase6/evaluate_metrics.py --image_dir Results_before_after_training/phase6_generations/zimage/ --ref_dir data/images/ --device cuda
+```
+*Reports will be saved to `quantitative_scoring_report.csv` and `automated_metrics_report.md` inside each model's output directory.*
+
+### Step 3.3: Run MLLM Qualitative Judge
+Grade the outputs using the local Qwen-Vision VLM:
+
+```bash
+# Grade FLUX
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/flux/ --model qwen2.5-vision
+
+# Grade SDXL
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/sdxl/ --model qwen2.5-vision
+
+# Grade Z-Image
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/zimage/ --model qwen2.5-vision
+```
+*Grades will be saved to `qualitative_scoring_report.csv` and `mllm_judge_report.md` inside each model's output directory.*
 
 ---
 
-## 4. Quantitative Metrics Evaluation (Scoring)
+## 4. Quantitative Metrics Table
 
-Automated metrics measure the visual fidelity and text alignment of fine-tuned models against baselines:
-
-* **CLIPScore (Prompt Alignment)**: Measures cosine similarity between the image embedding and the prompt embedding.
-* **LPIPS (Perceptual Distance)**: Measures the distance between the generated texture and ground-truth patterns. Lower is better.
-* **CLIP-IQA (Image Quality/Aesthetic)**: Evaluates the sharpness, detail, and visual appeal of the output.
-
-### Quantitative Scoring Table
+*Once the scripts in **Step 3.2** have run on the GPU server, copy the average scores from the generated reports and populate this table:*
 
 | Model / Epoch | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) | Style Alignment |
 | :--- | :---: | :---: | :---: | :---: |
-| **Z-Image (Baseline)** | 0.692 | 0.315 | 0.712 | 24% |
-| **Z-Image (Epoch 4 LoRA)** | 0.814 | 0.162 | 0.748 | 89% |
-| **SDXL (Baseline)** | 0.678 | 0.342 | 0.654 | 18% |
-| **SDXL (Epoch 1 LoRA)** | 0.765 | 0.218 | 0.689 | 74% |
-| **FLUX.1-dev (Baseline)** | 0.741 | 0.284 | 0.812 | 35% |
-| **FLUX.1-dev (Epoch 1 LoRA)** | **0.852** | **0.114** | **0.895** | **96%** |
+| **Z-Image (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **Z-Image (Epoch 4 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **SDXL (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **SDXL (Epoch 1 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **FLUX.1-dev (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **FLUX.1-dev (Epoch 1 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
 
 ---
 
-## 5. Qualitative Scoring Rubric (MLLM-as-a-Judge)
+## 5. Qualitative Scoring Rubric Table (VLM Judge)
 
-To complement quantitative scores, we conducted a qualitative evaluation using a **Qwen-Vision VLM-as-a-judge** pipeline. Each generated image was rated from **0.0 to 5.0** across five categories:
-
-1. **Prompt Adherence**: How well does the image contain every element described in the prompt?
-2. **Consistency with Intreccio Identity**: Does the weave pattern look like real "Intreccio" or macramé, or is it artificial/melted?
-3. **Manufacturability**: Could a master craftsman actually weave the structure shown, or is it physically impossible/floating?
-4. **Visual Quality**: Aesthetic appeal, sharp details, proper lighting, no blurry patches.
-5. **Controlled Originality**: Ability of the LoRA to generalize the weave style onto new shapes/objects without losing the weave's structure.
-
-### Qualitative Scoring Table
+*Once the scripts in **Step 3.3** have run, populate this table with the average 5-point ratings:*
 
 | Model / Epoch | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | **Mean Score** |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Z-Image (Baseline)** | 3.5 / 5.0 | 1.8 / 5.0 | 2.1 / 5.0 | 3.8 / 5.0 | 2.5 / 5.0 | **2.74 / 5.0** |
-| **Z-Image (Epoch 4 LoRA)** | 4.2 / 5.0 | 4.3 / 5.0 | 4.0 / 5.0 | 4.1 / 5.0 | 3.9 / 5.0 | **4.10 / 5.0** |
-| **SDXL (Baseline)** | 3.2 / 5.0 | 1.5 / 5.0 | 1.8 / 5.0 | 3.2 / 5.0 | 2.0 / 5.0 | **2.34 / 5.0** |
-| **SDXL (Epoch 1 LoRA)** | 3.8 / 5.0 | 3.6 / 5.0 | 3.2 / 5.0 | 3.5 / 5.0 | 3.1 / 5.0 | **3.44 / 5.0** |
-| **FLUX.1-dev (Baseline)** | 4.0 / 5.0 | 2.2 / 5.0 | 2.4 / 5.0 | 4.5 / 5.0 | 3.0 / 5.0 | **3.22 / 5.0** |
-| **FLUX.1-dev (Epoch 1 LoRA)** | **4.7 / 5.0** | **4.8 / 5.0** | **4.6 / 5.0** | **4.7 / 5.0** | **4.5 / 5.0** | **4.66 / 5.0** |
+| **Z-Image (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **Z-Image (Epoch 4 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **SDXL (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **SDXL (Epoch 1 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **FLUX.1-dev (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **FLUX.1-dev (Epoch 1 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
 
 ---
 
-## 6. Final Model Comparisons & Selection
+## 6. How to Compare and Select the Champion Model
 
-* **FLUX.1-dev (Champion Model)**:
-  FLUX outperforms both SDXL and Z-Image. Due to its double-stream DiT architecture and powerful T5-XXL text encoder, the model was able to absorb the highly specific weaving details and replicate them on new structures with outstanding geometric stability (LPIPS: **0.114**, qualitative score: **4.66**).
-* **Z-Image**:
-  Demonstrates very solid aesthetic rendering and sharp details (CLIP-IQA: **0.748**), but sometimes struggles with complex grid alignment, causing occasional warping in dense patterns.
-* **SDXL**:
-  Finetuned quickly but has limited prompt capacity compared to newer architectures. It is suitable for fast prototyping but cannot achieve the extreme precision needed for complex weaving patterns.
-
----
-
-## 7. Delivery Checklist
-
-- [x] Baseline and fine-tuned generation results organized in [Results_before_after_training/](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/)
-- [x] Sidecar caption files (`.txt` files) next to each generation
-- [x] Project indices and documentation reports:
-  - [summary.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary.md)
-  - [summary_flux.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_flux.md)
-  - [summary_sdxl.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_sdxl.md)
-  - [summary_zimage.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_zimage.md)
-- [x] Phase-specific reports: `phase1.md`, `phase2.md`, `phase3.md`, `phase5/`, `phase6.md`
-- [x] Inference demo, scoring, and judge scripts in the [phase6/](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/phase6/) folder.
+When interpreting the final populated tables:
+1. **Prompt Adherence & CLIPScore**: Look for the model that achieves the highest text alignment. T5-based text encoders (like the one in FLUX) generally yield significantly higher prompt adherence scores when dealing with descriptive, detail-heavy prompts.
+2. **Intreccio Geometry & LPIPS**: Models with lower LPIPS scores show a closer stylistic alignment to the ground-truth textures. Ensure that the fine-tuned model has successfully learned structured grid patterns rather than visual "noise".
+3. **Manufacturability & Visual Realism**: Compare MLLM ratings for manufacturability. High scores indicate that the model respects physical boundaries, creating interlocking crossings rather than impossible overlapping or loose thread endpoints.
+4. **Generalization capacity**: Look at "Controlled Originality" to see which model successfully maps the `intrecciami-style` texture onto complex, unseen shapes (such as handbags or furniture seats) without melting the weave's structure.

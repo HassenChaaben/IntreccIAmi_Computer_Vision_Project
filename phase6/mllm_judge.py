@@ -5,8 +5,7 @@ Phase 6 - MLLM-as-a-Judge Evaluation Pipeline
 =============================================================================
 Project: IntreccIAmi (ID 10)
 Purpose: Automates qualitative scoring using an MLLM-as-a-judge approach
-         grading outputs on a 5-point rubric: Prompt Adherence, Intreccio 
-         Identity, Manufacturability, Visual Quality, and Controlled Originality.
+         by querying a Qwen-Vision model via Ollama for each generated image.
 =============================================================================
 """
 
@@ -14,141 +13,175 @@ import os
 import sys
 import json
 import argparse
+import numpy as np
 from pathlib import Path
-
-# Grading criteria descriptions
-RUBRIC = {
-    "Prompt Adherence": "Grades how accurately the image reflects all prompt descriptors (technique, materials, finishes, post/weft spacing).",
-    "Intreccio Identity": "Grades how well the generated weave represents authentic Intreccio/Macramè patterns without melting or distortion.",
-    "Manufacturability": "Grades physical realism. Can a master artisan build this, or are there physically impossible, floating, or non-interlocking strands?",
-    "Visual Quality": "Grades overall aesthetic quality, sharpness, high-res details, and realistic lighting.",
-    "Controlled Originality": "Grades the capacity of the model to apply the learned weave style to new shapes/objects (generalization) cleanly."
-}
-
-def safe_print(text):
-    try:
-        print(text)
-    except UnicodeEncodeError:
-        try:
-            print(text.encode('ascii', errors='ignore').decode('ascii'))
-        except Exception:
-            pass
-
-def resolve_project_root():
-    curr = Path(__file__).resolve().parent
-    if curr.name == "phase6" and (curr.parent / "Results_before_after_training").exists():
-        return curr.parent
-    elif (curr / "Results_before_after_training").exists():
-        return curr
-    else:
-        cwd = Path.cwd()
-        if (cwd / "Results_before_after_training").exists():
-            return cwd
-        return curr.parent
-
-def print_judge_report():
-    """Outputs qualitative judge report based on real MLLM evaluations."""
-    markdown_report = """# Phase 6 - MLLM-as-a-Judge Qualitative Evaluation Report
-
-Grading scores (average across test prompts on a scale of 0 to 5) determined by our Qwen-Vision VLM-as-a-judge evaluation pipeline:
-
-| Model / Epoch | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | **Mean Score** |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Z-Image (Baseline)** | 3.5 / 5.0 | 1.8 / 5.0 | 2.1 / 5.0 | 3.8 / 5.0 | 2.5 / 5.0 | **2.74 / 5.0** |
-| **Z-Image (Epoch 4 LoRA)** | 4.2 / 5.0 | 4.3 / 5.0 | 4.0 / 5.0 | 4.1 / 5.0 | 3.9 / 5.0 | **4.10 / 5.0** |
-| **SDXL (Baseline)** | 3.2 / 5.0 | 1.5 / 5.0 | 1.8 / 5.0 | 3.2 / 5.0 | 2.0 / 5.0 | **2.34 / 5.0** |
-| **SDXL (Epoch 1 LoRA)** | 3.8 / 5.0 | 3.6 / 5.0 | 3.2 / 5.0 | 3.5 / 5.0 | 3.1 / 5.0 | **3.44 / 5.0** |
-| **FLUX.1-dev (Baseline)** | 4.0 / 5.0 | 2.2 / 5.0 | 2.4 / 5.0 | 4.5 / 5.0 | 3.0 / 5.0 | **3.22 / 5.0** |
-| **FLUX.1-dev (Epoch 1 LoRA)** | **4.7 / 5.0** | **4.8 / 5.0** | **4.6 / 5.0** | **4.7 / 5.0** | **4.5 / 5.0** | **4.66 / 5.0** |
-
-### Detailed Evaluation Analysis:
-
-1. **Prompt Adherence (FLUX LoRA: 4.7/5.0)**:
-   The FLUX model fine-tuned with our LoRA exhibits exceptional prompt adherence. Thanks to its advanced T5 text encoder, it parses and represents complex textual layouts (e.g., specific post/weft spacing and mixed materials) with minimum omission.
-
-2. **Intreccio Identity (FLUX LoRA: 4.8/5.0 vs Z-Image LoRA: 4.3/5.0)**:
-   Pre-training baselines failed to generate authentic Italian *intreccio* style, rendering generic wicker or chaotic patterns. Post-training, both FLUX and Z-Image learned the distinct geometries of *Intreccio semplice*, *spina*, and *Vario* knots. FLUX remains the most consistent in rendering double posts and triple wefts without structural breakdown.
-
-3. **Manufacturability (FLUX LoRA: 4.6/5.0)**:
-   The baseline models generated highly un-manufacturable structures with floating threads, loose ends, and physically impossible interlacings. The LoRA training taught the models the over-under physics of weaving. In the FLUX LoRA outputs, the grid-like patterns display clear, logical crossings that could be replicated by hand.
-
-4. **Controlled Originality & Generalization (Z-Image LoRA: 3.9/5.0 vs FLUX LoRA: 4.5/5.0)**:
-   On newly-constructed test prompts (e.g., woven handbags, furniture seats, lamp shades), the fine-tuned models succeeded in transferring the learned texture onto these new objects without distorting their overall shapes. The FLUX LoRA managed this with the highest visual fidelity and consistency.
-"""
-    safe_print(markdown_report)
-    
-    # Save the report to a local markdown file
-    report_path = Path(__file__).resolve().parent / "mllm_judge_report.md"
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(markdown_report)
-    safe_print(f"[INFO] Qualitative judge report successfully saved to: {report_path}")
-
-    # Save to CSV under Results_before_after_training/phase6_generations/
-    project_root = resolve_project_root()
-    csv_dir = project_root / "Results_before_after_training" / "phase6_generations"
-    csv_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = csv_dir / "qualitative_scoring_report.csv"
-    csv_data = """Model / Epoch,Prompt Adherence,Intreccio Identity,Manufacturability,Visual Quality,Controlled Originality,Mean Score
-Z-Image (Baseline),3.5,1.8,2.1,3.8,2.5,2.74
-Z-Image (Epoch 4 LoRA),4.2,4.3,4.0,4.1,3.9,4.10
-SDXL (Baseline),3.2,1.5,1.8,3.2,2.0,2.34
-SDXL (Epoch 1 LoRA),3.8,3.6,3.2,3.5,3.1,3.44
-FLUX.1-dev (Baseline),4.0,2.2,2.4,4.5,3.0,3.22
-FLUX.1-dev (Epoch 1 LoRA),4.7,4.8,4.6,4.7,4.5,4.66
-"""
-    with open(csv_path, "w", encoding="utf-8") as f:
-        f.write(csv_data)
-    safe_print(f"[INFO] Qualitative Scoring Table successfully saved to CSV: {csv_path}")
-
-def run_local_ollama_judge(image_path, prompt):
-    """Optional helper to send an evaluation request to Ollama's local model."""
-    try:
-        import ollama
-        print(f"[INFO] Querying local Ollama model for evaluation of {image_path}...")
-        
-        system_instruction = (
-            "You are a computer vision engineering quality judge evaluating image generation models. "
-            "Rate the image on a scale of 0 to 5 for each of these criteria:\n"
-            "1. Prompt Adherence: Does the image contain all elements in the prompt?\n"
-            "2. Intreccio Identity: Does it look like authentic woven leather/rattan or is it warped?\n"
-            "3. Manufacturability: Are the crossings physically possible?\n"
-            "4. Visual Quality: Sharpness, realistic lighting.\n"
-            "5. Controlled Originality: Style applied cleanly to the target object.\n"
-            "Provide the output as a JSON dictionary."
-        )
-        
-        response = ollama.generate(
-            model="qwen2.5-vision",
-            prompt=f"Prompt: {prompt}\nEvaluate this image based on the system instructions.",
-            images=[str(image_path)],
-            system=system_instruction
-        )
-        print("[SUCCESS] Ollama responded successfully:")
-        print(response['response'])
-        return response['response']
-    except Exception as e:
-        print(f"[INFO] Ollama Python library or local daemon is not running: {e}. Skipping local VLM query.")
-        return None
 
 def main():
     parser = argparse.ArgumentParser(description="MLLM-as-a-Judge Evaluation Pipeline")
-    parser.add_argument("--image", type=str, default=None, help="Path to generated image file")
-    parser.add_argument("--prompt", type=str, default=None, help="The prompt used to generate the image")
+    parser.add_argument("--image_dir", type=str, required=True,
+                        help="Directory containing generated images and matching .txt prompts")
+    parser.add_argument("--model", type=str, default="qwen2.5-vision",
+                        help="Ollama vision model name (default: qwen2.5-vision)")
+    parser.add_argument("--host", type=str, default=None,
+                        help="Ollama host address (optional)")
     args = parser.parse_args()
 
-    if args.image and args.prompt:
-        image_path = Path(args.image)
-        if image_path.exists():
-            run_local_ollama_judge(image_path, args.prompt)
-        else:
-            print(f"[ERROR] Image path not found: {image_path}")
+    image_dir = Path(args.image_dir)
+    if not image_dir.exists():
+        print(f"[ERROR] Image directory not found: {image_dir}")
+        sys.exit(1)
 
-    # Output verified qualitative grading table
+    print("[INFO] Attempting to import ollama library...")
+    try:
+        import ollama
+        # Initialize client
+        client = ollama.Client(host=args.host) if args.host else ollama
+    except ImportError:
+        print("[ERROR] ollama python package not installed. Run: pip install ollama")
+        sys.exit(1)
+
+    image_paths = sorted(list(image_dir.glob("*.png")))
+    if not image_paths:
+        print(f"[ERROR] No PNG files found in {image_dir}")
+        sys.exit(1)
+
+    print(f"[INFO] Found {len(image_paths)} images to judge using MLLM model: {args.model}")
+
+    results = []
+    adherence_list = []
+    identity_list = []
+    manuf_list = []
+    quality_list = []
+    originality_list = []
+
+    system_instruction = (
+        "You are a computer vision engineering quality judge evaluating image generation models. "
+        "Your job is to rate the image on a scale of 0.0 to 5.0 (decimals allowed, e.g., 4.5) for each of these criteria:\n"
+        "1. Prompt Adherence: Does the image contain all elements in the prompt?\n"
+        "2. Intreccio Identity: Does it look like authentic woven leather/rattan or is it warped/melted?\n"
+        "3. Manufacturability: Are the crossings physically possible? Would a craftsman be able to replicate it?\n"
+        "4. Visual Quality: Sharpness, realistic lighting, aesthetic appeal.\n"
+        "5. Controlled Originality: Style applied cleanly to the target object.\n"
+        "Respond ONLY with a raw JSON block like this:\n"
+        '{"prompt_adherence": 4.5, "intreccio_identity": 4.0, "manufacturability": 4.2, "visual_quality": 4.5, "controlled_originality": 4.0, "reasoning": "Brief explanation"}'
+    )
+
+    for img_path in image_paths:
+        txt_path = img_path.with_suffix(".txt")
+        if not txt_path.exists():
+            print(f"[WARNING] Missing prompt sidecar file: {txt_path}. Skipping.")
+            continue
+
+        with open(txt_path, "r", encoding="utf-8") as f:
+            prompt = f.read().strip()
+
+        print(f"-> Judging: {img_path.name}")
+        
+        try:
+            response = client.generate(
+                model=args.model,
+                prompt=f"Prompt: {prompt}\nEvaluate this image based on the system instructions.",
+                images=[str(img_path)],
+                system=system_instruction,
+                options={"temperature": 0.0} # Low temperature for deterministic grading
+            )
+            
+            resp_text = response['response'].strip()
+            # Clean up response to get raw JSON if model included markdown blocks
+            if resp_text.startswith("```json"):
+                resp_text = resp_text[7:]
+            if resp_text.endswith("```"):
+                resp_text = resp_text[:-3]
+            resp_text = resp_text.strip()
+            
+            data = json.loads(resp_text)
+            
+            adherence = float(data.get("prompt_adherence", 0.0))
+            identity = float(data.get("intreccio_identity", 0.0))
+            manuf = float(data.get("manufacturability", 0.0))
+            quality = float(data.get("visual_quality", 0.0))
+            orig = float(data.get("controlled_originality", 0.0))
+            reasoning = data.get("reasoning", "")
+            
+            adherence_list.append(adherence)
+            identity_list.append(identity)
+            manuf_list.append(manuf)
+            quality_list.append(quality)
+            originality_list.append(orig)
+            
+            mean_score = (adherence + identity + manuf + quality + orig) / 5.0
+            
+            results.append({
+                "image": img_path.name,
+                "prompt": prompt[:50] + "...",
+                "adherence": adherence,
+                "identity": identity,
+                "manufacturability": manuf,
+                "quality": quality,
+                "originality": orig,
+                "mean_score": mean_score,
+                "reasoning": reasoning
+            })
+            print(f"   [SCORES] Adherence: {adherence} | Identity: {identity} | Manuf: {manuf} | Quality: {quality} | Originality: {orig} | Mean: {mean_score:.2f}")
+
+        except Exception as e:
+            print(f"   [ERROR] Failed to judge image: {e}")
+
+    # Compute averages
+    if not results:
+        print("[ERROR] No images successfully graded.")
+        sys.exit(1)
+
+    mean_adh = np.mean(adherence_list)
+    mean_ident = np.mean(identity_list)
+    mean_manuf = np.mean(manuf_list)
+    mean_qual = np.mean(quality_list)
+    mean_orig = np.mean(originality_list)
+    total_mean = np.mean([res["mean_score"] for res in results])
+
     print("\n" + "="*80)
-    print("                     PHASE 6 QUALITATIVE scoring SUMMARY")
+    print("                      MLLM-AS-A-JUDGE GRADING COMPLETE")
     print("="*80)
-    print_judge_report()
+    print(f"Prompt Adherence:    {mean_adh:.2f} / 5.0")
+    print(f"Intreccio Identity:  {mean_ident:.2f} / 5.0")
+    print(f"Manufacturability:   {mean_manuf:.2f} / 5.0")
+    print(f"Visual Quality:      {mean_qual:.2f} / 5.0")
+    print(f"Controlled Orig:     {mean_orig:.2f} / 5.0")
+    print(f"OVERALL MEAN SCORE:  {total_mean:.2f} / 5.0")
     print("="*80)
+
+    # Save CSV Report
+    csv_path = image_dir / "qualitative_scoring_report.csv"
+    with open(csv_path, "w", encoding="utf-8") as f:
+        f.write("image,prompt_adherence,intreccio_identity,manufacturability,visual_quality,controlled_originality,mean_score,reasoning\n")
+        for res in results:
+            clean_reasoning = res['reasoning'].replace('"', '""')
+            f.write(f"{res['image']},{res['adherence']},{res['identity']},{res['manufacturability']},{res['quality']},{res['originality']},{res['mean_score']:.2f},\"{clean_reasoning}\"\n")
+    print(f"[INFO] Detailed CSV scores saved to: {csv_path}")
+
+    # Save Markdown Summary
+    md_path = image_dir / "mllm_judge_report.md"
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(f"# MLLM-as-a-Judge Qualitative Evaluation Report\n\n")
+        f.write(f"* **Source Image Directory**: `{image_dir.name}/`\n")
+        f.write(f"* **MLLM Model**: `{args.model}`\n")
+        f.write(f"* **Total Judged Images**: {len(results)}\n\n")
+        f.write(f"## Summary Ratings (Average / 5.0)\n\n")
+        f.write(f"| Evaluation Criteria | Average Rating / 5.0 | Standard Deviation |\n")
+        f.write(f"| :--- | :---: | :---: |\n")
+        f.write(f"| **Prompt Adherence** | {mean_adh:.2f} | {np.std(adherence_list):.2f} |\n")
+        f.write(f"| **Intreccio Identity** | {mean_ident:.2f} | {np.std(identity_list):.2f} |\n")
+        f.write(f"| **Manufacturability** | {mean_manuf:.2f} | {np.std(manuf_list):.2f} |\n")
+        f.write(f"| **Visual Quality** | {mean_qual:.2f} | {np.std(quality_list):.2f} |\n")
+        f.write(f"| **Controlled Originality** | {mean_orig:.2f} | {np.std(originality_list):.2f} |\n")
+        f.write(f"| **OVERALL MEAN SCORE** | **{total_mean:.2f}** | **{np.std([res['mean_score'] for res in results]):.2f}** |\n")
+        f.write("\n\n## Per-Image Detailed Ratings\n\n")
+        f.write("| Image | Adherence | Identity | Manufacturability | Quality | Originality | Mean | Reasoning |\n")
+        f.write("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |\n")
+        for res in results:
+            f.write(f"| {res['image']} | {res['adherence']:.1f} | {res['identity']:.1f} | {res['manufacturability']:.1f} | {res['quality']:.1f} | {res['originality']:.1f} | {res['mean_score']:.2f} | {res['reasoning']} |\n")
+            
+    print(f"[INFO] Markdown judge report saved to: {md_path}")
 
 if __name__ == "__main__":
     main()
