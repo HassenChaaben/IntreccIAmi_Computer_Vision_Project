@@ -58,11 +58,28 @@ def main():
             print(f"[INFO] Reference directory found: {ref_dir}. Loading LPIPS model...")
             try:
                 import lpips
+                from PIL import Image
+                import numpy as np
                 lpips_model = lpips.LPIPS(net='alex').to(device)
-                # Load up to 20 reference images for comparison speed
-                ref_paths = list(ref_dir.glob("*.png")) + list(ref_dir.glob("*.jpg"))
+                
+                # Load up to 20 reference images with case-insensitive extensions
+                ref_paths = []
+                for ext in ["*.png", "*.PNG", "*.jpg", "*.JPG", "*.jpeg", "*.JPEG"]:
+                    ref_paths.extend(list(ref_dir.glob(ext)))
+                
+                # Deduplicate
+                ref_paths = sorted(list(set(ref_paths)))
+                
                 for rp in ref_paths[:20]:
-                    ref_images.append(lpips.im2tensor(lpips.load_image(str(rp))).to(device))
+                    try:
+                        # Load and convert to RGB
+                        pil_ref = Image.open(rp).convert("RGB")
+                        img_np = np.array(pil_ref).astype(np.float32) / 255.0
+                        img_np = img_np * 2.0 - 1.0
+                        ref_images.append(lpips.im2tensor(img_np).to(device))
+                    except Exception as img_err:
+                        print(f"[WARNING] Failed to load reference image {rp.name}: {img_err}")
+                
                 print(f"[INFO] Loaded {len(ref_images)} reference images for style similarity checks.")
             except ImportError:
                 print("[WARNING] lpips library not installed. LPIPS calculation will be skipped. Run: pip install lpips")
@@ -134,9 +151,11 @@ def main():
         lpips_score = 0.0
         if lpips_model and ref_images:
             try:
-                import torchvision.transforms as transforms
-                # Resize generated to match lpips expectations
-                gen_tensor = lpips.im2tensor(lpips.load_image(str(img_path))).to(device)
+                # Load and convert generated image to match LPIPS expectations
+                pil_gen = Image.open(img_path).convert("RGB")
+                gen_np = np.array(pil_gen).astype(np.float32) / 255.0
+                gen_np = gen_np * 2.0 - 1.0
+                gen_tensor = lpips.im2tensor(gen_np).to(device)
                 dists = []
                 with torch.no_grad():
                     for ref_tensor in ref_images:
