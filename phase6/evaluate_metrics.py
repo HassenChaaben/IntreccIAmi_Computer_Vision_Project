@@ -74,13 +74,20 @@ def main():
                     try:
                         # Load and convert to RGB
                         pil_ref = Image.open(rp).convert("RGB")
+                        # Resize to standard 512x512 to avoid spatial dimension mismatches in LPIPS
+                        try:
+                            resampling = Image.Resampling.BILINEAR
+                        except AttributeError:
+                            resampling = Image.BILINEAR
+                        pil_ref = pil_ref.resize((512, 512), resampling)
+                        
                         img_np = np.array(pil_ref).astype(np.float32) / 255.0
                         img_np = img_np * 2.0 - 1.0
                         ref_images.append(lpips.im2tensor(img_np).to(device))
                     except Exception as img_err:
                         print(f"[WARNING] Failed to load reference image {rp.name}: {img_err}")
                 
-                print(f"[INFO] Loaded {len(ref_images)} reference images for style similarity checks.")
+                print(f"[INFO] Loaded {len(ref_images)} reference images (resized to 512x512) for style similarity checks.")
             except ImportError:
                 print("[WARNING] lpips library not installed. LPIPS calculation will be skipped. Run: pip install lpips")
         else:
@@ -151,8 +158,14 @@ def main():
         lpips_score = 0.0
         if lpips_model and ref_images:
             try:
-                # Load and convert generated image to match LPIPS expectations
+                # Load, convert, and resize generated image to match LPIPS expectations
                 pil_gen = Image.open(img_path).convert("RGB")
+                try:
+                    resampling = Image.Resampling.BILINEAR
+                except AttributeError:
+                    resampling = Image.BILINEAR
+                pil_gen = pil_gen.resize((512, 512), resampling)
+                
                 gen_np = np.array(pil_gen).astype(np.float32) / 255.0
                 gen_np = gen_np * 2.0 - 1.0
                 gen_tensor = lpips.im2tensor(gen_np).to(device)
