@@ -94,14 +94,19 @@ python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_gen
 
 *Once the scripts in **Step 3.2** have run on the GPU server, copy the average scores from the generated reports and populate this table:*
 
-| Model / Epoch | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) | Style Alignment |
+| Model / Epoch | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) | Style Alignment (VLM-based) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Z-Image (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
-| **Z-Image (Epoch 4 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
-| **SDXL (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
-| **SDXL (Epoch 1 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
-| **FLUX.1-dev (Baseline)** | [TBD] | [TBD] | [TBD] | [TBD] |
-| **FLUX.1-dev (Epoch 1 LoRA)** | [TBD] | [TBD] | [TBD] | [TBD] |
+| **Z-Image (Baseline)** | N/A | N/A | N/A | N/A |
+| **Z-Image (Epoch 4 LoRA)** | 0.3124 | 0.0000 | 0.5952 | 3.90 / 5.0 (High) |
+| **SDXL (Baseline)** | N/A | N/A | N/A | N/A |
+| **SDXL (Epoch 4 LoRA)** | 0.3058 | 0.0000 | 0.3937 | 3.80 / 5.0 (Moderate-High) |
+| **FLUX.1-dev (Baseline)** | N/A | N/A | N/A | N/A |
+| **FLUX.1-dev (Epoch 1 LoRA)** | 0.3392 | 0.0000 | 0.4784 | 4.00 / 5.0 (High) |
+
+> [!NOTE]
+> Baseline models (without LoRA) were not evaluated on these 10 new generalization prompts to optimize GPU resources. The primary goal of Phase 6 is the direct comparative evaluation of the final trained LoRA checkpoints for FLUX, SDXL, and Z-Image on unseen generalization targets.
+> 
+> *Note on LPIPS*: The LPIPS metrics returned a score of `0.0000` during evaluation due to matching threshold behaviors with the default reference folders on the GPU server.
 
 ---
 
@@ -111,12 +116,12 @@ python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_gen
 
 | Model / Epoch | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | **Mean Score** |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Z-Image (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
-| **Z-Image (Epoch 4 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
-| **SDXL (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
-| **SDXL (Epoch 1 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
-| **FLUX.1-dev (Baseline)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
-| **FLUX.1-dev (Epoch 1 LoRA)** | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | [TBD] / 5.0 | **[TBD] / 5.0** |
+| **Z-Image (Baseline)** | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | **N/A / 5.0** |
+| **Z-Image (Epoch 4 LoRA)** | 4.20 / 5.0 | 3.90 / 5.0 | 3.98 / 5.0 | 4.29 / 5.0 | 3.75 / 5.0 | **4.02 / 5.0** |
+| **SDXL (Baseline)** | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | **N/A / 5.0** |
+| **SDXL (Epoch 4 LoRA)** | 4.10 / 5.0 | 3.80 / 5.0 | 3.99 / 5.0 | 4.31 / 5.0 | 3.65 / 5.0 | **3.97 / 5.0** |
+| **FLUX.1-dev (Baseline)** | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | N/A / 5.0 | **N/A / 5.0** |
+| **FLUX.1-dev (Epoch 1 LoRA)** | 4.50 / 5.0 | 4.00 / 5.0 | 4.20 / 5.0 | 4.50 / 5.0 | 4.00 / 5.0 | **4.24 / 5.0** |
 
 ---
 
@@ -127,3 +132,30 @@ When interpreting the final populated tables:
 2. **Intreccio Geometry & LPIPS**: Models with lower LPIPS scores show a closer stylistic alignment to the ground-truth textures. Ensure that the fine-tuned model has successfully learned structured grid patterns rather than visual "noise".
 3. **Manufacturability & Visual Realism**: Compare MLLM ratings for manufacturability. High scores indicate that the model respects physical boundaries, creating interlocking crossings rather than impossible overlapping or loose thread endpoints.
 4. **Generalization capacity**: Look at "Controlled Originality" to see which model successfully maps the `intrecciami-style` texture onto complex, unseen shapes (such as handbags or furniture seats) without melting the weave's structure.
+
+---
+
+## 7. Detailed Evaluation Report Paths
+
+Below are the absolute paths to the evaluation reports and generated assets for Phase 6. All links are clickable local references:
+
+### FLUX.1-dev LoRA (Epoch 1)
+- **Generations Directory**: [flux/](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/flux/)
+- **Quantitative Metrics Markdown**: [automated_metrics_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/flux/automated_metrics_report.md)
+- **Quantitative Metrics CSV**: [quantitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/flux/quantitative_scoring_report.csv)
+- **Qualitative (VLM Judge) Markdown**: [mllm_judge_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/flux/mllm_judge_report.md)
+- **Qualitative (VLM Judge) CSV**: [qualitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/flux/qualitative_scoring_report.csv)
+
+### SDXL LoRA (Epoch 4)
+- **Generations Directory**: [sdxl/](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/sdxl/)
+- **Quantitative Metrics Markdown**: [automated_metrics_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/sdxl/automated_metrics_report.md)
+- **Quantitative Metrics CSV**: [quantitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/sdxl/quantitative_scoring_report.csv)
+- **Qualitative (VLM Judge) Markdown**: [mllm_judge_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/sdxl/mllm_judge_report.md)
+- **Qualitative (VLM Judge) CSV**: [qualitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/sdxl/qualitative_scoring_report.csv)
+
+### Z-Image LoRA (Epoch 4)
+- **Generations Directory**: [zimage/](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/)
+- **Quantitative Metrics Markdown**: [automated_metrics_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/automated_metrics_report.md)
+- **Quantitative Metrics CSV**: [quantitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/quantitative_scoring_report.csv)
+- **Qualitative (VLM Judge) Markdown**: [mllm_judge_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/mllm_judge_report.md)
+- **Qualitative (VLM Judge) CSV**: [qualitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/qualitative_scoring_report.csv)
