@@ -264,3 +264,47 @@ Here are the detailed per-image quantitative metrics and qualitative VLM ratings
 | `gen_test_10.png` (Office Chair) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
 | **Mean** | **4.20** | **3.90** | **3.98** | **4.29** | **3.75** | **4.02** |
 
+---
+
+## 9. Detailed Explanation of Automated Evaluation Metrics
+
+To understand how our models are graded quantitatively, we use three distinct automated metrics. Below is a detailed, simple explanation of what each metric means, why we use it, and exactly how it is calculated in our pipeline:
+
+### 9.1 CLIPScore (Text Alignment / Prompt Adherence)
+* **What it means**: This measures how well the generated image matches the written prompt. A higher score means the visual contents of the image align closely with the description in the text (e.g. if the prompt says "navy blue handbag," the image contains a navy blue handbag).
+* **Why we use it**: It prevents the model from generating high-quality but irrelevant images (hallucinations).
+* **How we calculate it**:
+  1. **Text Encoding**: We take the written prompt and pass it through the **CLIP text encoder** (specifically, OpenAI's ViT-B/32 model). This converts the text into a mathematical vector (a list of numbers) representing the semantic meaning of the words.
+  2. **Image Encoding**: We take the generated image and pass it through the **CLIP image encoder** to convert it into a vector representing the visual elements.
+  3. **Normalization**: Both vectors are normalized so they have a length of 1, allowing for direct comparison.
+  4. **Cosine Similarity**: We calculate the dot product (cosine similarity) between the normalized text and image vectors. This yields a score between `0` and `1` representing how closely the text and image point in the same direction in the high-dimensional embedding space.
+  5. **Final Score**: The average cosine similarity across all test prompts becomes the model's overall CLIPScore (typical good scores range from `0.30` to `0.40`).
+
+---
+
+### 9.2 LPIPS (Learned Perceptual Image Patch Similarity)
+* **What it means**: This measures the "style distance" between the generated weave textures and the real training images in our dataset. Since we are testing generalization on unseen shapes (like chairs and coasters), we want to make sure the style of the weave matches the real artisan textures. A **lower** LPIPS score is better, representing a smaller stylistic distance (meaning the texture looks closer to the real thing).
+* **Why we use it**: Standard pixel-to-pixel comparison (like MSE or PSNR) fails when the object changes shape. LPIPS compares deep perceptual features (like curves, intersections, and texture patterns) instead of exact pixel colors.
+* **How we calculate it**:
+  1. **Image Resizing**: We resize both the generated image and our reference dataset images to `512x512` pixels to ensure they have matching spatial dimensions.
+  2. **Feature Extraction**: We run the images through a pre-trained deep convolutional neural network (we use **AlexNet**). Instead of looking at the final classification, we extract intermediate feature maps from different layers of the network.
+  3. **Perceptual Distance**: At each layer, we normalize the feature maps in the channel dimension and compute the difference (L2 distance) between the features of the generated image and the reference image.
+  4. **Scaling & Averaging**: We multiply the difference at each layer by a scaling factor (learned from human perceptual data) and average them to get the total perceptual distance.
+  5. **Nearest-Neighbor Matching**: For each generated image, we calculate this distance against up to 20 reference images in our dataset and record the **minimum distance** (representing how close the generated texture is to its closest real counterpart).
+
+---
+
+### 9.3 CLIP-IQA (CLIP-based Image Quality Assessment)
+* **What it means**: This measures the overall visual quality, sharpness, and aesthetics of the generated image. A higher score means the image is crisp, has professional studio lighting, and is free of blurriness, distortion, or artifact noise.
+* **Why we use it**: It lets us evaluate the visual appeal and quality of the generated image blindly, without needing a reference image to compare against.
+* **How we calculate it**:
+  1. **Image Encoding**: We pass the generated image through the CLIP image encoder to extract its visual embedding vector.
+  2. **Quality Prompt Pairs**: We define a pair of opposite quality descriptions:
+     * **Positive Prompt**: `"a good quality high resolution sharp photo"`
+     * **Negative Prompt**: `"a bad quality blurry low resolution noisy photo"`
+  3. **Text Encoding**: We convert these text prompts into embedding vectors using the CLIP text encoder.
+  4. **Logit Calculation**: We compute the similarity of the image vector with the positive prompt and the negative prompt.
+  5. **Probability Distribution**: We pass these similarity scores (logits) through a **Softmax** function, which converts them into probabilities that sum up to `1.0`.
+  6. **Final Score**: The probability value assigned to the positive prompt becomes our CLIP-IQA score (ranging from `0.0` to `1.0`, where higher probability means superior visual quality).
+
+
