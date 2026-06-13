@@ -84,7 +84,7 @@ def resolve_project_root():
 
 def main():
     parser = argparse.ArgumentParser(description="SDXL Combined Seen and Unseen Image Generation Script")
-    parser.add_argument("--epoch", type=int, default=4, choices=[0, 1, 2, 3, 4], help="LoRA epoch to validate (0, 1, 2, 3, or 4, default: 4)")
+    parser.add_argument("--epoch", type=str, default="all", choices=["0", "1", "2", "3", "4", "all"], help="LoRA epoch to validate (0, 1, 2, 3, 4, or 'all', default: 'all')")
     parser.add_argument("--device", type=str, default="cuda", help="Inference device (default: cuda)")
     parser.add_argument("--skip_before", action="store_true", help="Skip base model (before) generations")
     args = parser.parse_args()
@@ -92,58 +92,115 @@ def main():
     project_root = resolve_project_root()
     print(f"[INFO] PROJECT_ROOT resolved to: {project_root}")
 
-    # Output directory path
-    output_dir = project_root / "Results_before_after_training" / f"SDXL_examples_after_lora_training_unseen_and__seen_prompts_epoch_{args.epoch}"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"[INFO] Saving results to: {output_dir}")
+    # Determine epochs to process
+    if args.epoch == "all":
+        epochs = [0, 1, 2, 3, 4]
+    else:
+        epochs = [int(args.epoch)]
 
-    # Search for LoRA file
-    possible_lora_paths = [
-        project_root / "data" / "id10" / "sdxl" / "models" / "SDXL_lora" / f"epoch-{args.epoch}.safetensors",
-        Path(f"/home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora/epoch-{args.epoch}.safetensors"),
-        Path(f"./data/id10/sdxl/models/SDXL_lora/epoch-{args.epoch}.safetensors"),
-        Path(f"data/id10/sdxl/models/SDXL_lora/epoch-{args.epoch}.safetensors")
-    ]
-    
-    lora_path = None
-    for path in possible_lora_paths:
-        if path.exists():
-            lora_path = path
-            break
+    for epoch in epochs:
+        print(f"\n==========================================")
+        print(f"Processing SDXL LoRA Epoch {epoch}")
+        print(f"==========================================")
 
-    if lora_path is None:
-        print(f"[ERROR] Could not find LoRA weights file for epoch {args.epoch} in any of the expected locations.")
-        print("Expected paths checked:")
-        for path in possible_lora_paths:
-            print(f"  - {path.resolve()}")
-        sys.exit(1)
+        # Output directory path
+        output_dir = project_root / "Results_before_after_training" / f"SDXL_examples_after_lora_training_unseen_and__seen_prompts_epoch_{epoch}"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        print(f"[INFO] Saving results to: {output_dir}")
 
-    print(f"[INFO] Using SDXL LoRA weights: {lora_path.resolve()}")
-
-    print("\n=== Initializing SDXL Pipeline ===")
-    pipe = StableDiffusionXLPipeline.from_pretrained(
-        torch_dtype=torch.float16,
-        device=args.device,
-        model_configs=[
-            ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
-            ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder_2/model.safetensors"),
-            ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="unet/diffusion_pytorch_model.safetensors"),
-            ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
-        ],
-        tokenizer_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer/"),
-        tokenizer_2_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer_2/"),
-    )
-
-    # ==========================================
-    # Phase 1: Generating BEFORE images (Base model)
-    # ==========================================
-    if not args.skip_before:
-        print("\n=== Generating BEFORE images (Base model) ===")
+        # Search for LoRA file
+        possible_lora_paths = [
+            project_root / "data" / "id10" / "sdxl" / "models" / "SDXL_lora" / f"epoch-{epoch}.safetensors",
+            Path(f"/home/project_id_10/DiffSynth-Studio/data/id10/sdxl/models/SDXL_lora/epoch-{epoch}.safetensors"),
+            Path(f"./data/id10/sdxl/models/SDXL_lora/epoch-{epoch}.safetensors"),
+            Path(f"data/id10/sdxl/models/SDXL_lora/epoch-{epoch}.safetensors")
+        ]
         
-        # 1. Seen Prompts (Before)
-        print(f"\n--- Generating {len(SEEN_PROMPTS)} BEFORE images for SEEN prompts ---")
+        lora_path = None
+        for path in possible_lora_paths:
+            if path.exists():
+                lora_path = path
+                break
+
+        if lora_path is None:
+            print(f"[WARNING] Could not find LoRA weights file for epoch {epoch} in any of the expected locations. Skipping epoch.")
+            continue
+
+        print(f"[INFO] Using SDXL LoRA weights: {lora_path.resolve()}")
+
+        print("\n=== Initializing SDXL Pipeline ===")
+        pipe = StableDiffusionXLPipeline.from_pretrained(
+            torch_dtype=torch.float16,
+            device=args.device,
+            model_configs=[
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder_2/model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="unet/diffusion_pytorch_model.safetensors"),
+                ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
+            ],
+            tokenizer_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer/"),
+            tokenizer_2_config=ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="tokenizer_2/"),
+        )
+
+        # ==========================================
+        # Phase 1: Generating BEFORE images (Base model)
+        # ==========================================
+        if not args.skip_before:
+            print("\n=== Generating BEFORE images (Base model) ===")
+            
+            # 1. Seen Prompts (Before)
+            print(f"\n--- Generating {len(SEEN_PROMPTS)} BEFORE images for SEEN prompts ---")
+            for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
+                filename = f"before_seen_{idx}.png"
+                filepath = output_dir / filename
+                if filepath.exists():
+                    print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
+                    continue
+                print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Generating: {filename}")
+                image = pipe(
+                    prompt=prompt,
+                    seed=42,
+                    rand_device=args.device,
+                    num_inference_steps=30,
+                    width=1024,
+                    height=1024
+                )
+                image.save(str(filepath))
+
+            # 2. Unseen Prompts (Before)
+            print(f"\n--- Generating {len(UNSEEN_PROMPTS)} BEFORE images for UNSEEN prompts ---")
+            for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
+                filename = f"before_unseen_{idx}.png"
+                filepath = output_dir / filename
+                if filepath.exists():
+                    print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
+                    continue
+                print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Generating: {filename}")
+                image = pipe(
+                    prompt=prompt,
+                    seed=42,
+                    rand_device=args.device,
+                    num_inference_steps=30,
+                    width=1024,
+                    height=1024
+                )
+                image.save(str(filepath))
+
+        # ==========================================
+        # Load LoRA Weights
+        # ==========================================
+        print(f"\n=== Loading LoRA weights onto UNet: {lora_path} ===")
+        pipe.load_lora(module=pipe.unet, lora_config=str(lora_path))
+
+        # ==========================================
+        # Phase 2: Generating AFTER images (LoRA model)
+        # ==========================================
+        print("\n=== Generating AFTER images (Fine-tuned model) ===")
+
+        # 1. Seen Prompts (After)
+        print(f"\n--- Generating {len(SEEN_PROMPTS)} AFTER images for SEEN prompts ---")
         for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
-            filename = f"before_seen_{idx}.png"
+            filename = f"after_seen_{idx}.png"
             filepath = output_dir / filename
             if filepath.exists():
                 print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
@@ -159,10 +216,10 @@ def main():
             )
             image.save(str(filepath))
 
-        # 2. Unseen Prompts (Before)
-        print(f"\n--- Generating {len(UNSEEN_PROMPTS)} BEFORE images for UNSEEN prompts ---")
+        # 2. Unseen Prompts (After)
+        print(f"\n--- Generating {len(UNSEEN_PROMPTS)} AFTER images for UNSEEN prompts ---")
         for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
-            filename = f"before_unseen_{idx}.png"
+            filename = f"after_unseen_{idx}.png"
             filepath = output_dir / filename
             if filepath.exists():
                 print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
@@ -178,57 +235,13 @@ def main():
             )
             image.save(str(filepath))
 
-    # ==========================================
-    # Load LoRA Weights
-    # ==========================================
-    print(f"\n=== Loading LoRA weights onto UNet: {lora_path} ===")
-    pipe.load_lora(module=pipe.unet, lora_config=str(lora_path))
+        print(f"\n[SUCCESS] Completed generation cocktail for epoch {epoch}.")
+        print(f"Outputs saved under: {output_dir.resolve()}")
 
-    # ==========================================
-    # Phase 2: Generating AFTER images (LoRA model)
-    # ==========================================
-    print("\n=== Generating AFTER images (Fine-tuned model) ===")
-
-    # 1. Seen Prompts (After)
-    print(f"\n--- Generating {len(SEEN_PROMPTS)} AFTER images for SEEN prompts ---")
-    for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
-        filename = f"after_seen_{idx}.png"
-        filepath = output_dir / filename
-        if filepath.exists():
-            print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
-            continue
-        print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Generating: {filename}")
-        image = pipe(
-            prompt=prompt,
-            seed=42,
-            rand_device=args.device,
-            num_inference_steps=30,
-            width=1024,
-            height=1024
-        )
-        image.save(str(filepath))
-
-    # 2. Unseen Prompts (After)
-    print(f"\n--- Generating {len(UNSEEN_PROMPTS)} AFTER images for UNSEEN prompts ---")
-    for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
-        filename = f"after_unseen_{idx}.png"
-        filepath = output_dir / filename
-        if filepath.exists():
-            print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
-            continue
-        print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Generating: {filename}")
-        image = pipe(
-            prompt=prompt,
-            seed=42,
-            rand_device=args.device,
-            num_inference_steps=30,
-            width=1024,
-            height=1024
-        )
-        image.save(str(filepath))
-
-    print(f"\n[SUCCESS] Completed generation cocktail for seen and unseen prompts.")
-    print(f"All outputs saved under: {output_dir.resolve()}")
+        # Release VRAM memory
+        del pipe
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
