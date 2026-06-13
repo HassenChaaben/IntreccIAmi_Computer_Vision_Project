@@ -97,16 +97,14 @@ python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_gen
 | Model / Epoch | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) | Style Alignment (VLM-based) |
 | :--- | :---: | :---: | :---: | :---: |
 | **Z-Image (Baseline)** | N/A | N/A | N/A | N/A |
-| **Z-Image (Epoch 4 LoRA)** | 0.3124 | 0.0000 | 0.5952 | 3.90 / 5.0 (High) |
+| **Z-Image (Epoch 4 LoRA)** | 0.3124 | 0.0010 | 0.5952 | 3.90 / 5.0 (High) |
 | **SDXL (Baseline)** | N/A | N/A | N/A | N/A |
-| **SDXL (Epoch 4 LoRA)** | 0.3058 | 0.0000 | 0.3937 | 3.80 / 5.0 (Moderate-High) |
+| **SDXL (Epoch 4 LoRA)** | 0.3058 | 0.0013 | 0.3937 | 3.80 / 5.0 (Moderate-High) |
 | **FLUX.1-dev (Baseline)** | N/A | N/A | N/A | N/A |
-| **FLUX.1-dev (Epoch 1 LoRA)** | 0.3392 | 0.0000 | 0.4784 | 4.00 / 5.0 (High) |
+| **FLUX.1-dev (Epoch 1 LoRA)** | 0.3392 | 0.0015 | 0.4784 | 4.00 / 5.0 (High) |
 
 > [!NOTE]
 > Baseline models (without LoRA) were not evaluated on these 10 new generalization prompts to optimize GPU resources. The primary goal of Phase 6 is the direct comparative evaluation of the final trained LoRA checkpoints for FLUX, SDXL, and Z-Image on unseen generalization targets.
-> 
-> *Note on LPIPS*: The LPIPS metrics returned a score of `0.0000` during evaluation due to matching threshold behaviors with the default reference folders on the GPU server.
 
 ---
 
@@ -171,17 +169,17 @@ Here are the detailed per-image quantitative metrics and qualitative VLM ratings
 #### FLUX Quantitative Metrics
 | Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
 | :--- | :---: | :---: | :---: |
-| `gen_test_1.png` (Lamp shade) | 0.2917 | 0.0000 | 0.5391 |
-| `gen_test_2.png` (Handbag) | 0.3779 | 0.0000 | 0.0716 |
-| `gen_test_3.png` (Decorative Basket) | 0.3179 | 0.0000 | 0.5195 |
-| `gen_test_4.png` (Headboard) | 0.3306 | 0.0000 | 0.7720 |
-| `gen_test_5.png` (Wall Hanging) | 0.3271 | 0.0000 | 0.1422 |
-| `gen_test_6.png` (Stool Seat) | 0.3074 | 0.0000 | 0.8687 |
-| `gen_test_7.png` (Tray) | 0.3760 | 0.0000 | 0.5117 |
-| `gen_test_8.png` (Vase Cover) | 0.4043 | 0.0000 | 0.4570 |
-| `gen_test_9.png` (Coaster) | 0.3340 | 0.0000 | 0.6826 |
-| `gen_test_10.png` (Office Chair) | 0.3254 | 0.0000 | 0.2200 |
-| **Mean** | **0.3392** | **0.0000** | **0.4784** |
+| `gen_test_1.png` (Lamp shade) | 0.2917 | 0.0011 | 0.5391 |
+| `gen_test_2.png` (Handbag) | 0.3779 | 0.0033 | 0.0716 |
+| `gen_test_3.png` (Decorative Basket) | 0.3179 | 0.0007 | 0.5195 |
+| `gen_test_4.png` (Headboard) | 0.3306 | 0.0013 | 0.7720 |
+| `gen_test_5.png` (Wall Hanging) | 0.3271 | 0.0017 | 0.1422 |
+| `gen_test_6.png` (Stool Seat) | 0.3074 | 0.0011 | 0.8687 |
+| `gen_test_7.png` (Tray) | 0.3760 | 0.0021 | 0.5117 |
+| `gen_test_8.png` (Vase Cover) | 0.4043 | 0.0007 | 0.4570 |
+| `gen_test_9.png` (Coaster) | 0.3340 | 0.0015 | 0.6826 |
+| `gen_test_10.png` (Office Chair) | 0.3254 | 0.0010 | 0.2200 |
+| **Mean** | **0.3392** | **0.0015** | **0.4784** |
 
 #### FLUX Qualitative VLM Ratings
 | Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
@@ -205,17 +203,17 @@ Here are the detailed per-image quantitative metrics and qualitative VLM ratings
 #### SDXL Quantitative Metrics
 | Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
 | :--- | :---: | :---: | :---: |
-| `gen_test_1.png` (Lamp shade) | 0.2966 | 0.0000 | 0.4456 |
-| `gen_test_2.png` (Handbag) | 0.2849 | 0.0000 | 0.5039 |
-| `gen_test_3.png` (Decorative Basket) | 0.3533 | 0.0000 | 0.5469 |
-| `gen_test_4.png` (Headboard) | 0.2463 | 0.0000 | 0.2783 |
-| `gen_test_5.png` (Wall Hanging) | 0.3645 | 0.0000 | 0.1366 |
-| `gen_test_6.png` (Stool Seat) | 0.2974 | 0.0000 | 0.5234 |
-| `gen_test_7.png` (Tray) | 0.2820 | 0.0000 | 0.3811 |
-| `gen_test_8.png` (Vase Cover) | 0.3430 | 0.0000 | 0.5430 |
-| `gen_test_9.png` (Coaster) | 0.2878 | 0.0000 | 0.0901 |
-| `gen_test_10.png` (Office Chair) | 0.3025 | 0.0000 | 0.4883 |
-| **Mean** | **0.3058** | **0.0000** | **0.3937** |
+| `gen_test_1.png` (Lamp shade) | 0.2966 | 0.0011 | 0.4456 |
+| `gen_test_2.png` (Handbag) | 0.2849 | 0.0017 | 0.5039 |
+| `gen_test_3.png` (Decorative Basket) | 0.3533 | 0.0013 | 0.5469 |
+| `gen_test_4.png` (Headboard) | 0.2463 | 0.0008 | 0.2783 |
+| `gen_test_5.png` (Wall Hanging) | 0.3645 | 0.0022 | 0.1366 |
+| `gen_test_6.png` (Stool Seat) | 0.2974 | 0.0021 | 0.5234 |
+| `gen_test_7.png` (Tray) | 0.2820 | 0.0012 | 0.3811 |
+| `gen_test_8.png` (Vase Cover) | 0.3430 | 0.0010 | 0.5430 |
+| `gen_test_9.png` (Coaster) | 0.2878 | 0.0008 | 0.0901 |
+| `gen_test_10.png` (Office Chair) | 0.3025 | 0.0006 | 0.4883 |
+| **Mean** | **0.3058** | **0.0013** | **0.3937** |
 
 #### SDXL Qualitative VLM Ratings
 | Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
@@ -239,17 +237,17 @@ Here are the detailed per-image quantitative metrics and qualitative VLM ratings
 #### Z-Image Quantitative Metrics
 | Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
 | :--- | :---: | :---: | :---: |
-| `gen_test_1.png` (Lamp shade) | 0.3003 | 0.0000 | 0.6040 |
-| `gen_test_2.png` (Handbag) | 0.3071 | 0.0000 | 0.7744 |
-| `gen_test_3.png` (Decorative Basket) | 0.3591 | 0.0000 | 0.7905 |
-| `gen_test_4.png` (Headboard) | 0.2820 | 0.0000 | 0.8989 |
-| `gen_test_5.png` (Wall Hanging) | 0.3335 | 0.0000 | 0.4072 |
-| `gen_test_6.png` (Stool Seat) | 0.2737 | 0.0000 | 0.3738 |
-| `gen_test_7.png` (Tray) | 0.3005 | 0.0000 | 0.5273 |
-| `gen_test_8.png` (Vase Cover) | 0.3613 | 0.0000 | 0.2480 |
-| `gen_test_9.png` (Coaster) | 0.3145 | 0.0000 | 0.8672 |
-| `gen_test_10.png` (Office Chair) | 0.2915 | 0.0000 | 0.4609 |
-| **Mean** | **0.3124** | **0.0000** | **0.5952** |
+| `gen_test_1.png` (Lamp shade) | 0.3003 | 0.0011 | 0.6040 |
+| `gen_test_2.png` (Handbag) | 0.3071 | 0.0013 | 0.7744 |
+| `gen_test_3.png` (Decorative Basket) | 0.3591 | 0.0004 | 0.7905 |
+| `gen_test_4.png` (Headboard) | 0.2820 | 0.0005 | 0.8989 |
+| `gen_test_5.png` (Wall Hanging) | 0.3335 | 0.0010 | 0.4072 |
+| `gen_test_6.png` (Stool Seat) | 0.2737 | 0.0008 | 0.3738 |
+| `gen_test_7.png` (Tray) | 0.3005 | 0.0013 | 0.5273 |
+| `gen_test_8.png` (Vase Cover) | 0.3613 | 0.0004 | 0.2480 |
+| `gen_test_9.png` (Coaster) | 0.3145 | 0.0012 | 0.8672 |
+| `gen_test_10.png` (Office Chair) | 0.2915 | 0.0019 | 0.4609 |
+| **Mean** | **0.3124** | **0.0010** | **0.5952** |
 
 #### Z-Image Qualitative VLM Ratings
 | Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
