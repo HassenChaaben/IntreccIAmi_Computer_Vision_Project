@@ -78,13 +78,13 @@ Grade the outputs using the local Qwen-Vision VLM:
 
 ```bash
 # Grade FLUX
-python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/flux/ --model qwen2.5-vision
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/flux/ --model qwen2.5vl:32b
 
 # Grade SDXL
-python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/sdxl/ --model qwen2.5-vision
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/sdxl/ --model qwen2.5vl:32b
 
 # Grade Z-Image
-python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/zimage/ --model qwen2.5-vision
+python phase6/mllm_judge.py --image_dir Results_before_after_training/phase6_generations/zimage/ --model qwen2.5vl:32b
 ```
 *Grades will be saved to `qualitative_scoring_report.csv` and `mllm_judge_report.md` inside each model's output directory.*
 
