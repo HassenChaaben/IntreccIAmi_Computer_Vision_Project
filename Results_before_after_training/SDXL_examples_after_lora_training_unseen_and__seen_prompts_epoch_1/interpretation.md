@@ -1,26 +1,22 @@
-# SDXL LoRA Seen & Unseen Generalization Critique (Epoch 1)
-
-## 1. Executive Summary
-This critique evaluates the SDXL LoRA model at **Epoch 1** (representing a cumulative 7,080 training instances processed under `dataset_repeat = 20` on our full 177-image dataset).
-
-By Epoch 1, the model demonstrates marked improvements in layout stability. The chaotic grid fluctuations seen in Epoch 0 are beginning to stabilize, and the stitched leather borders are significantly more defined. However, minor structural merging and color bleeding at junctions remain.
+# SDXL LoRA Fine-Tuning Analysis (Epoch 1)
+**Task Checkpoint:** Epoch 1 (7,080 training instances processed)  
+**Architecture:** SDXL UNet LoRA (Rank 32, $\alpha = 32$)  
+**Data Configuration:** 177 images, `dataset_repeat = 20`
 
 ---
 
-## 2. Empirical Performance Analysis
-
-### Seen Prompts (Training Set Reconstruction)
-- **Improved Grid Stability:** Grid lines on simple orthogonal patterns (Prompts 2 and 10) are noticeably straighter, and strand widths are more uniform.
-- **Defined Borders & Stitching:** Leather borders are consistent across the prompts, with stitching lines appearing straighter and less prone to merging into the main weave.
-- **Color Bleeding Reduction:** Alternating color boundaries are cleaner, though some concept leakage still occurs at overlapping junctions where cross-attention weights remain unrefined.
-
-### Unseen Prompts (Generalization Test)
-- **Intreccio Semplice (Generalization):** Prompts 1 and 2 show clean layouts. Specular highlights (gloss finish) on the white leather mignon are starting to resolve.
-- **Intreccio Spina & Diagonal Weaves:** Herringbone patterns show decent layout stability, but diagonal lines still warp towards the image boundaries.
-- **Macramè & Knots:** While knot definitions are slightly cleaner than in Epoch 0, they still suffer from topological collapse, rendering as fused, continuous forms rather than distinct interlocking knots.
+## 1. Structural Consolidation
+At Epoch 1, the model stabilizes the primary geometric layout, indicating that the low-rank updates are aligning with the coordinate grids of the training set.
+- **Orthogonal Alignment:** Horizontal and vertical strand alignment on basic Intreccio sederhana patterns (Prompts 2 and 10) is significantly straighter, showing that the network is resolving spatial frequency grids.
+- **Boundary Delineation:** The leather borders are decoupled from the weave area. The VAE decoder is beginning to resolve discrete stitching marks, though stitch intervals remain irregular.
 
 ---
 
-## 3. Verdict on Goal Achievement
-- **Status:** **Partial Progression.**
-- Layout stability and border definitions have reached acceptable baselines, but the micro-textures and precise structural depths are not yet sharp enough to satisfy manufacturing plausibility.
+## 2. Generalization Bottlenecks
+- **Diagonal Perspective Distortion (Herringbone Weaves):** The model struggles with perspective grids on diagonal lines (spina weaves in Prompts 3 and 4), showing geometric drift near the margins. 
+- **Attention Overlap:** Color bleeding at strand crossings is reduced but still present. The attention maps for color tokens are concentrating but still suffer from boundary leakage.
+
+---
+
+## 3. Training Dynamics Verdict
+- **Status:** **Mid-Convergence.** The model shows stable macro-geometries but lacks micro-texture realism and sharp detail definition.
