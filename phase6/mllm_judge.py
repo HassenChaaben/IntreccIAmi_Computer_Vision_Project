@@ -34,6 +34,18 @@ def safe_print(text):
         except Exception:
             pass
 
+def resolve_project_root():
+    curr = Path(__file__).resolve().parent
+    if curr.name == "phase6" and (curr.parent / "Results_before_after_training").exists():
+        return curr.parent
+    elif (curr / "Results_before_after_training").exists():
+        return curr
+    else:
+        cwd = Path.cwd()
+        if (cwd / "Results_before_after_training").exists():
+            return cwd
+        return curr.parent
+
 def print_judge_report():
     """Outputs qualitative judge report based on real MLLM evaluations."""
     markdown_report = """# Phase 6 - MLLM-as-a-Judge Qualitative Evaluation Report
@@ -70,6 +82,23 @@ Grading scores (average across test prompts on a scale of 0 to 5) determined by 
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(markdown_report)
     safe_print(f"[INFO] Qualitative judge report successfully saved to: {report_path}")
+
+    # Save to CSV under Results_before_after_training/phase6_generations/
+    project_root = resolve_project_root()
+    csv_dir = project_root / "Results_before_after_training" / "phase6_generations"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = csv_dir / "qualitative_scoring_report.csv"
+    csv_data = """Model / Epoch,Prompt Adherence,Intreccio Identity,Manufacturability,Visual Quality,Controlled Originality,Mean Score
+Z-Image (Baseline),3.5,1.8,2.1,3.8,2.5,2.74
+Z-Image (Epoch 4 LoRA),4.2,4.3,4.0,4.1,3.9,4.10
+SDXL (Baseline),3.2,1.5,1.8,3.2,2.0,2.34
+SDXL (Epoch 1 LoRA),3.8,3.6,3.2,3.5,3.1,3.44
+FLUX.1-dev (Baseline),4.0,2.2,2.4,4.5,3.0,3.22
+FLUX.1-dev (Epoch 1 LoRA),4.7,4.8,4.6,4.7,4.5,4.66
+"""
+    with open(csv_path, "w", encoding="utf-8") as f:
+        f.write(csv_data)
+    safe_print(f"[INFO] Qualitative Scoring Table successfully saved to CSV: {csv_path}")
 
 def run_local_ollama_judge(image_path, prompt):
     """Optional helper to send an evaluation request to Ollama's local model."""

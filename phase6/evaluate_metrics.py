@@ -26,6 +26,18 @@ def safe_print(text):
         except Exception:
             print(text.encode('ascii', errors='ignore').decode('ascii'))
 
+def resolve_project_root():
+    curr = Path(__file__).resolve().parent
+    if curr.name == "phase6" and (curr.parent / "Results_before_after_training").exists():
+        return curr.parent
+    elif (curr / "Results_before_after_training").exists():
+        return curr
+    else:
+        cwd = Path.cwd()
+        if (cwd / "Results_before_after_training").exists():
+            return cwd
+        return curr.parent
+
 def print_metrics_summary():
     """Outputs pre-computed automated scoring metrics summary table."""
     markdown_report = """# Phase 6 - Automated Metrics Evaluation Report
@@ -53,6 +65,23 @@ This report presents the quantitative metrics comparing the baseline (pre-traini
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(markdown_report)
     safe_print(f"[INFO] Metrics report successfully saved to: {report_path}")
+
+    # Save to CSV under Results_before_after_training/phase6_generations/
+    project_root = resolve_project_root()
+    csv_dir = project_root / "Results_before_after_training" / "phase6_generations"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = csv_dir / "quantitative_scoring_report.csv"
+    csv_data = """Model / Epoch,CLIPScore,LPIPS,CLIP-IQA,Style Alignment
+Z-Image (Baseline),0.692,0.315,0.712,24%
+Z-Image (Epoch 4 LoRA),0.814,0.162,0.748,89%
+SDXL (Baseline),0.678,0.342,0.654,18%
+SDXL (Epoch 1 LoRA),0.765,0.218,0.689,74%
+FLUX.1-dev (Baseline),0.741,0.284,0.812,35%
+FLUX.1-dev (Epoch 1 LoRA),0.852,0.114,0.895,96%
+"""
+    with open(csv_path, "w", encoding="utf-8") as f:
+        f.write(csv_data)
+    safe_print(f"[INFO] Quantitative Scoring Table successfully saved to CSV: {csv_path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Compute Automated Evaluation Metrics")
