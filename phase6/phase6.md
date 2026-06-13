@@ -159,3 +159,110 @@ Below are the absolute paths to the evaluation reports and generated assets for 
 - **Quantitative Metrics CSV**: [quantitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/quantitative_scoring_report.csv)
 - **Qualitative (VLM Judge) Markdown**: [mllm_judge_report.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/mllm_judge_report.md)
 - **Qualitative (VLM Judge) CSV**: [qualitative_scoring_report.csv](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/phase6_generations/zimage/qualitative_scoring_report.csv)
+
+---
+
+## 8. Per-Image Detailed Evaluation Breakdown
+
+Here are the detailed per-image quantitative metrics and qualitative VLM ratings for all 10 generalization test prompts across the three models.
+
+### 8.1 FLUX.1-dev LoRA (Epoch 1)
+
+#### FLUX Quantitative Metrics
+| Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
+| :--- | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 0.2917 | 0.0000 | 0.5391 |
+| `gen_test_2.png` (Handbag) | 0.3779 | 0.0000 | 0.0716 |
+| `gen_test_3.png` (Decorative Basket) | 0.3179 | 0.0000 | 0.5195 |
+| `gen_test_4.png` (Headboard) | 0.3306 | 0.0000 | 0.7720 |
+| `gen_test_5.png` (Wall Hanging) | 0.3271 | 0.0000 | 0.1422 |
+| `gen_test_6.png` (Stool Seat) | 0.3074 | 0.0000 | 0.8687 |
+| `gen_test_7.png` (Tray) | 0.3760 | 0.0000 | 0.5117 |
+| `gen_test_8.png` (Vase Cover) | 0.4043 | 0.0000 | 0.4570 |
+| `gen_test_9.png` (Coaster) | 0.3340 | 0.0000 | 0.6826 |
+| `gen_test_10.png` (Office Chair) | 0.3254 | 0.0000 | 0.2200 |
+| **Mean** | **0.3392** | **0.0000** | **0.4784** |
+
+#### FLUX Qualitative VLM Ratings
+| Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_2.png` (Handbag) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_3.png` (Decorative Basket) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_4.png` (Headboard) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_5.png` (Wall Hanging) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_6.png` (Stool Seat) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_7.png` (Tray) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_8.png` (Vase Cover) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_9.png` (Coaster) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_10.png` (Office Chair) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| **Mean** | **4.50** | **4.00** | **4.20** | **4.50** | **4.00** | **4.24** |
+
+---
+
+### 8.2 SDXL LoRA (Epoch 4)
+
+#### SDXL Quantitative Metrics
+| Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
+| :--- | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 0.2966 | 0.0000 | 0.4456 |
+| `gen_test_2.png` (Handbag) | 0.2849 | 0.0000 | 0.5039 |
+| `gen_test_3.png` (Decorative Basket) | 0.3533 | 0.0000 | 0.5469 |
+| `gen_test_4.png` (Headboard) | 0.2463 | 0.0000 | 0.2783 |
+| `gen_test_5.png` (Wall Hanging) | 0.3645 | 0.0000 | 0.1366 |
+| `gen_test_6.png` (Stool Seat) | 0.2974 | 0.0000 | 0.5234 |
+| `gen_test_7.png` (Tray) | 0.2820 | 0.0000 | 0.3811 |
+| `gen_test_8.png` (Vase Cover) | 0.3430 | 0.0000 | 0.5430 |
+| `gen_test_9.png` (Coaster) | 0.2878 | 0.0000 | 0.0901 |
+| `gen_test_10.png` (Office Chair) | 0.3025 | 0.0000 | 0.4883 |
+| **Mean** | **0.3058** | **0.0000** | **0.3937** |
+
+#### SDXL Qualitative VLM Ratings
+| Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
+| `gen_test_2.png` (Handbag) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
+| `gen_test_3.png` (Decorative Basket) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_4.png` (Headboard) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_5.png` (Wall Hanging) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_6.png` (Stool Seat) | 3.0 | 3.5 | 3.0 | 4.0 | 2.5 | 3.20 |
+| `gen_test_7.png` (Tray) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_8.png` (Vase Cover) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
+| `gen_test_9.png` (Coaster) | 3.5 | 4.0 | 4.5 | 4.0 | 3.5 | 3.90 |
+| `gen_test_10.png` (Office Chair) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| **Mean** | **4.10** | **3.80** | **3.99** | **4.31** | **3.65** | **3.97** |
+
+---
+
+### 8.3 Z-Image LoRA (Epoch 4)
+
+#### Z-Image Quantitative Metrics
+| Image | CLIPScore (↑) | LPIPS (↓) | CLIP-IQA (↑) |
+| :--- | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 0.3003 | 0.0000 | 0.6040 |
+| `gen_test_2.png` (Handbag) | 0.3071 | 0.0000 | 0.7744 |
+| `gen_test_3.png` (Decorative Basket) | 0.3591 | 0.0000 | 0.7905 |
+| `gen_test_4.png` (Headboard) | 0.2820 | 0.0000 | 0.8989 |
+| `gen_test_5.png` (Wall Hanging) | 0.3335 | 0.0000 | 0.4072 |
+| `gen_test_6.png` (Stool Seat) | 0.2737 | 0.0000 | 0.3738 |
+| `gen_test_7.png` (Tray) | 0.3005 | 0.0000 | 0.5273 |
+| `gen_test_8.png` (Vase Cover) | 0.3613 | 0.0000 | 0.2480 |
+| `gen_test_9.png` (Coaster) | 0.3145 | 0.0000 | 0.8672 |
+| `gen_test_10.png` (Office Chair) | 0.2915 | 0.0000 | 0.4609 |
+| **Mean** | **0.3124** | **0.0000** | **0.5952** |
+
+#### Z-Image Qualitative VLM Ratings
+| Image | Prompt Adherence | Intreccio Identity | Manufacturability | Visual Quality | Controlled Originality | Mean Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `gen_test_1.png` (Lamp shade) | 4.0 | 4.5 | 4.0 | 4.0 | 3.5 | 4.00 |
+| `gen_test_2.png` (Handbag) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_3.png` (Decorative Basket) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_4.png` (Headboard) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_5.png` (Wall Hanging) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
+| `gen_test_6.png` (Stool Seat) | 3.0 | 3.5 | 3.0 | 3.5 | 3.0 | 3.20 |
+| `gen_test_7.png` (Tray) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_8.png` (Vase Cover) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_9.png` (Coaster) | 4.5 | 4.0 | 4.2 | 4.5 | 4.0 | 4.24 |
+| `gen_test_10.png` (Office Chair) | 4.0 | 3.5 | 3.8 | 4.2 | 3.5 | 3.80 |
+| **Mean** | **4.20** | **3.90** | **3.98** | **4.29** | **3.75** | **4.02** |
+
