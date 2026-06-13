@@ -1,25 +1,26 @@
 # SDXL LoRA Seen & Unseen Generalization Critique (Epoch 1)
 
-## Executive Summary
-This report evaluates the training progression of the SDXL LoRA model at **Epoch 1** (total 400 training steps, resumed from Epoch 0 with `dataset_repeat = 20`). 
+## 1. Executive Summary
+This critique evaluates the SDXL LoRA model at **Epoch 1** (representing a cumulative 7,080 training instances processed under `dataset_repeat = 20` on our full 177-image dataset).
 
-By Epoch 1, the model shows marked improvements in layout stability. The waviness of the grid lines observed in Epoch 0 is beginning to stabilize, and the stitched leather borders are significantly more defined. However, there is still minor structural merging and a lack of true three-dimensional depth.
-
----
-
-## Technical Evaluation
-
-### 1. Structural & Geometric Alignment
-- **Improved Grid Stability:** The grid lines are noticeably straighter, particularly on simple orthogonal patterns (Prompts 2 and 10). Strand widths are becoming more uniform.
-- **Defined Borders:** The leather borders are more consistent across prompts, with the stitching lines appearing straighter and less prone to merging into the main weave.
-- **Knot Topologies:** Complex structures (like the Macramé square knots in Prompt 3) still suffer from structural collapse, appearing as fused, continuous forms rather than distinct interlocking knots.
-
-### 2. Material & Color Saturation
-- **Refined Textures:** Rattan and leather grains are starting to resolve with higher clarity. The glossy finish on verniciatura prompts is becoming visible.
-- **Reduced Color Bleeding:** Boundaries between alternating colors are cleaner, though some concept leakage remains at overlapping strand junctions.
+By Epoch 1, the model demonstrates marked improvements in layout stability. The chaotic grid fluctuations seen in Epoch 0 are beginning to stabilize, and the stitched leather borders are significantly more defined. However, minor structural merging and color bleeding at junctions remain.
 
 ---
 
-## Verdict on Goal Achievement
-- **Partially Achieved.**
-- The model successfully stabilizes the macro layout of the weaves and produces visually appealing results, but lacks the micro-texture sharpness and precise structural depth needed to fully satisfy the training requirements.
+## 2. Empirical Performance Analysis
+
+### Seen Prompts (Training Set Reconstruction)
+- **Improved Grid Stability:** Grid lines on simple orthogonal patterns (Prompts 2 and 10) are noticeably straighter, and strand widths are more uniform.
+- **Defined Borders & Stitching:** Leather borders are consistent across the prompts, with stitching lines appearing straighter and less prone to merging into the main weave.
+- **Color Bleeding Reduction:** Alternating color boundaries are cleaner, though some concept leakage still occurs at overlapping junctions where cross-attention weights remain unrefined.
+
+### Unseen Prompts (Generalization Test)
+- **Intreccio Semplice (Generalization):** Prompts 1 and 2 show clean layouts. Specular highlights (gloss finish) on the white leather mignon are starting to resolve.
+- **Intreccio Spina & Diagonal Weaves:** Herringbone patterns show decent layout stability, but diagonal lines still warp towards the image boundaries.
+- **Macramè & Knots:** While knot definitions are slightly cleaner than in Epoch 0, they still suffer from topological collapse, rendering as fused, continuous forms rather than distinct interlocking knots.
+
+---
+
+## 3. Verdict on Goal Achievement
+- **Status:** **Partial Progression.**
+- Layout stability and border definitions have reached acceptable baselines, but the micro-textures and precise structural depths are not yet sharp enough to satisfy manufacturing plausibility.

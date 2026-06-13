@@ -1,25 +1,26 @@
 # SDXL LoRA Seen & Unseen Generalization Critique (Epoch 0)
 
-## Executive Summary
-This report evaluates the initial training stage of the SDXL LoRA model at **Epoch 0** (200 training steps, using `dataset_repeat = 20` on a 10-image dataset). Training was conducted using the newly modified float32 pipeline setup to prevent VAE numerical instabilities.
+## 1. Executive Summary
+This critique evaluates the initial training stage of the SDXL LoRA model at **Epoch 0** (representing 3,540 training instances processed under `dataset_repeat = 20` on our full 177-image dataset). 
 
-At this early checkpoint, the model shows promising style acquisition by starting to recognize the `intrecciami-style` trigger prefix. It successfully renders the core texture concepts (rattan, leather, wicker) and produces the initial layouts. However, there are significant geometric and textural instabilities that are typical of early-stage training.
-
----
-
-## Technical Evaluation
-
-### 1. Structural & Geometric Alignment
-- **Style Emergence:** The model has successfully associated the `intrecciami-style` token with close-up macro shots of woven patterns.
-- **Geometric Instability:** Grid lines are wavy and exhibit significant distortions. Orthogonal weaves (seen in Prompts 2 and 10) display irregular spacing and uneven strand thicknesses.
-- **Borders & Stitching:** The stitched leather borders are highly inconsistent. In several generations, they appear warped, incomplete, or merge directly into the weave itself.
-
-### 2. Material & Color Saturation
-- **Color Representation:** Saturated colors (such as the green in Prompts 1 and 2) are represented, but they lack depth and display high-frequency noise.
-- **Color Bleeding:** Significant color bleeding is observed at the intersections of alternating colors. The model struggles to decouple adjacent colored strands, resulting in muddy boundaries.
+At this first checkpoint, the model shows promising style acquisition by starting to associate the `intrecciami-style` token with close-up macro shots of woven patterns. It successfully renders the core texture concepts (rattan, leather, wicker) and produces the initial layouts. However, there are significant geometric and textural instabilities that are typical of early-stage training.
 
 ---
 
-## Verdict on Goal Achievement
-- **In Progress.**
-- The model is beginning to learn the branding identity, but the structural integrity and texture details are not yet sufficient for manufacturing plausibility. 
+## 2. Empirical Performance Analysis
+
+### Seen Prompts (Training Set Reconstruction)
+- **Technique Representation:** Woven patterns (Intreccio) are recognizable, but the alignment of the strands is chaotic. Grid structures are wavy, and strand widths fluctuate significantly within the same panel.
+- **Leather Borders & Stitching:** Leather borders are highly inconsistent. The tan/beige borders are often blurry, and the stitching is either missing or renders as a continuous, messy line rather than discrete thread punctures.
+- **Alternating Colors:** In prompts requiring alternating colors (e.g., Prompt 5 with white and light brown strands), color bleeding is severe. The colors merge at the intersections, indicating that the model's cross-attention layers have not yet learned to separate distinct strand color tokens.
+
+### Unseen Prompts (Generalization Test)
+- **Macramè & Knots:** Knot geometry is completely unresolved. Square knots (Nodo quadro) are represented as generic lumpy textures rather than actual loops.
+- **Rinfilo on Paglia di Vienna:** The underlying hexagonal Vienna straw pattern is heavily distorted or completely replaced by generic checkerboard grids.
+- **Finish Plausibility:** The unvarnished (Grezzo) texture lacks the dry, organic look of real rattan, appearing plasticky due to early-stage learning of lighting gradients.
+
+---
+
+## 3. Verdict on Goal Achievement
+- **Status:** **Early Training Stage.**
+- The model has acquired the global composition prior of close-up macro weaving photography, but does not yet possess the fine-grained control or geometric stability required for manufacturable representation.
