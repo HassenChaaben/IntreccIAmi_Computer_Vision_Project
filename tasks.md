@@ -148,36 +148,37 @@ This task list serves as the operational checklist for executing the **IntreccIA
 
 ## Phase 6: Evaluation & Deliverables
 
-- [ ] **6.1 Inference Demo**
-  - [ ] Construct at least 10 model-tailored **new** test prompts (not identical to training captions) to assess LoRA generalization capacity
-  - [ ] Example: "a minimalist woven rattan lamp shade with simple repeatable lattice texture"
-  - [ ] Generate and save all corresponding output images as a deliverable set
-- [ ] **6.2 Automated and Qualitative Scoring**
-  - [ ] Compute **CLIPScore** for prompt alignment
-  - [ ] Compute **LPIPS** for style/perceptual similarity
-  - [ ] Compute **CLIP-IQA** for perceptual image quality estimation
-  - [ ] Grade generations across the 5-point qualitative rubric using an **MLLM-as-a-judge** pipeline:
-    - [ ] Prompt adherence (0–5)
-    - [ ] Consistency with intreccio identity (0–5)
-    - [ ] Manufacturability (0–5)
-    - [ ] Visual quality (0–5)
-    - [ ] Controlled originality (0–5)
-- [ ] **6.3 Final Packaging for Professor Submission**
-  - [ ] Consolidate scripts (`normalize_dataset.py`, `caption_zimage.py`, `caption_flux.py`, `caption_sdxl.py`) inside `Project_ID10_IntreccIAmi/`
+- [x] **6.1 Inference Demo** ✅ `phase6/inference_generalization.py`
+  - [x] Construct at least 10 model-tailored **new** test prompts (not identical to training captions) to assess LoRA generalization capacity
+  - [x] Example: "a minimalist woven rattan lamp shade with simple repeatable lattice texture"
+  - [x] Generate and save all corresponding output images as a deliverable set
+- [x] **6.2 Automated and Qualitative Scoring** ✅ `phase6/evaluate_metrics.py` & `phase6/mllm_judge.py`
+  - [x] Compute **CLIPScore** for prompt alignment
+  - [x] Compute **LPIPS** for style/perceptual similarity
+  - [x] Compute **CLIP-IQA** for perceptual image quality estimation
+  - [x] Grade generations across the 5-point qualitative rubric using an **MLLM-as-a-judge** pipeline:
+    - [x] Prompt adherence (0–5)
+    - [x] Consistency with intreccio identity (0–5)
+    - [x] Manufacturability (0–5)
+    - [x] Visual quality (0–5)
+    - [x] Controlled originality (0–5)
+- [x] **6.3 Final Packaging for Professor Submission** ✅
+  - [x] Consolidate scripts (`normalize_dataset.py`, `caption_zimage.py`, `caption_flux.py`, `caption_sdxl.py`) inside `Project_ID10_IntreccIAmi/`
   - [x] Create unified results index [summary.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary.md) describing all folders and linking all generated images with captions
   - [x] Provide before/after LoRA comparison reports across Z-Image, Flux, and SDXL ([summary_zimage.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_zimage.md), [summary_flux.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_flux.md), [summary_sdxl.md](file:///c:/Users/user/Downloads/Dataset_preparation/mouhaymin/Results_before_after_training/summary_sdxl.md))
-  - [ ] Deliver the three distinct trained LoRA weight files and configurations
-  - [ ] Deliver the prompt templates with input/output examples
-  - [ ] Include `metadata_extraction_qa_report.csv` and all per-model QA reports
+  - [x] Deliver the three distinct trained LoRA weight files and configurations
+  - [x] Deliver the prompt templates with input/output examples
+  - [x] Include `metadata_extraction_qa_report.csv` and all per-model QA reports
 
 ---
 
 ## Pre-Submission Checklist (from Instructions §14)
 
-- [ ] All images referenced in the JSON exist in the TEXTURE DI INTRECCI folder
-- [ ] Each valid entry has a non-empty caption
-- [ ] Captions use metadata but do not mention JSON, Label Studio, bbox, or filename
-- [ ] Materials, colors, technique, and finish are not invented
-- [ ] The final dataset is reproducible: relative paths, scripts, configuration, and seed are saved
-- [ ] Examples of generation before/after LoRA are included
-- [ ] The evaluation includes automatic metrics and a structured qualitative judgment
+- [x] All images referenced in the JSON exist in the TEXTURE DI INTRECCI folder
+- [x] Each valid entry has a non-empty caption
+- [x] Captions use metadata but do not mention JSON, Label Studio, bbox, or filename
+- [x] Materials, colors, technique, and finish are not invented
+- [x] The final dataset is reproducible: relative paths, scripts, configuration, and seed are saved
+- [x] Examples of generation before/after LoRA are included
+- [x] The evaluation includes automatic metrics and a structured qualitative judgment
+
