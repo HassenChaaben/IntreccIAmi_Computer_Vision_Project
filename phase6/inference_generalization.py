@@ -166,10 +166,10 @@ def main():
                 ModelConfig(model_id="Tongyi-MAI/Z-Image", origin_file_pattern="transformer/*.safetensors"),
                 ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="text_encoder/*.safetensors"),
                 ModelConfig(model_id="Tongyi-MAI/Z-Image-Turbo", origin_file_pattern="vae/diffusion_pytorch_model.safetensors"),
-                tokenizer_config
-            ]
+            ],
+            tokenizer_config=tokenizer_config,
         )
-        pipe.load_lora(pipe.dit, str(lora_path), alpha=1)
+        pipe.load_lora(module=pipe.dit, lora_config=str(lora_path))
 
     # Run inference for each test prompt
     print("\n=== Generating Generalization Demo Images ===")
