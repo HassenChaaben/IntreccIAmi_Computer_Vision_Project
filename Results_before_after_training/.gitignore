@@ -4,3 +4,7 @@ eval.md
 IMG_6865.txt
 val_epoch0.png
 Z_image_val_epoch0.png
+baseline_flux_task_1.txt
+baseline_zimage_task_1.txt
+val_epoch0.txt
+Z_image_val_epoch0.txt
