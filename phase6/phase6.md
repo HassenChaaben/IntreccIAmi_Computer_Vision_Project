@@ -307,4 +307,28 @@ To understand how our models are graded quantitatively, we use three distinct au
   5. **Probability Distribution**: We pass these similarity scores (logits) through a **Softmax** function, which converts them into probabilities that sum up to `1.0`.
   6. **Final Score**: The probability value assigned to the positive prompt becomes our CLIP-IQA score (ranging from `0.0` to `1.0`, where higher probability means superior visual quality).
 
+---
+
+### 9.4 Qualitative Evaluation Criteria (VLM Judge Rubric)
+To score the aesthetic quality and stylistic authenticity of generated images from a design and manufacturing perspective, the Qwen-Vision VLM scores each generated image on a 5-point scale (1.0 to 5.0) using five qualitative criteria:
+
+1. **Prompt Adherence**:
+   * **What it means**: Grades how faithfully the image represents all semantic elements mentioned in the prompt (e.g. if the prompt asks for "a handcrafted wooden stool with a woven seat," the VLM checks if a wooden stool with a woven seat is present).
+   * **Significance**: Identifies failures in target object reconstruction or composition instruction compliance.
+2. **Intreccio Identity**:
+   * **What it means**: Evaluates whether the generated pattern represents a authentic, recognizable Italian weaving technique (Intreccio) rather than generic mesh, flat patterns, or visual noise.
+   * **Significance**: Ensures the LoRA has acquired the specific artisan style characteristics rather than just repeating simple grids.
+3. **Manufacturability**:
+   * **What it means**: Assesses whether the depicted weave is physically possible to construct by hand. The VLM checks if strands interlace in a logical over-under order, if they are physically continuous, and if they terminate correctly at borders rather than floating in mid-air.
+   * **Significance**: Critical for design prototyping where the output image must serve as a blueprint for real physical objects.
+4. **Visual Quality**:
+   * **What it means**: Evaluates overall render quality, sharpness, contrast, lighting, and presence of digital artifacts or distortion.
+   * **Significance**: Acts as a qualitative checkpoint alongside CLIP-IQA to identify blurry elements, texture compression, or rendering failures.
+5. **Controlled Originality**:
+   * **What it means**: Measures how effectively the model generalizes the learned `intrecciami-style` texture onto complex, unseen target objects (like a handbag or ergonomic chair) without distorting the weave's structure or melting the target shape.
+   * **Significance**: Verifies if the LoRA acts as a flexible, generalized style compiler instead of a rigid texture copier.
+6. **Mean Score**:
+   * **What it means**: The simple arithmetic mean of the five criteria scores, calculated as: `(Adherence + Identity + Manufacturability + Quality + Originality) / 5`. This provides a single balanced grade summarizing the overall generalization success of the LoRA model for each generated image.
+
+
 
