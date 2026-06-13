@@ -130,7 +130,7 @@ def main():
 
         print("\n=== Initializing SDXL Pipeline ===")
         pipe = StableDiffusionXLPipeline.from_pretrained(
-            torch_dtype=torch.float16,
+            torch_dtype=torch.float32,
             device=args.device,
             model_configs=[
                 ModelConfig(model_id="stabilityai/stable-diffusion-xl-base-1.0", origin_file_pattern="text_encoder/model.safetensors"),
@@ -153,7 +153,7 @@ def main():
             for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
                 filename = f"before_seen_{idx}.png"
                 filepath = output_dir / filename
-                if filepath.exists():
+                if filepath.exists() and filepath.stat().st_size > 10 * 1024:
                     print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
                     continue
                 print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Generating: {filename}")
@@ -172,7 +172,7 @@ def main():
             for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
                 filename = f"before_unseen_{idx}.png"
                 filepath = output_dir / filename
-                if filepath.exists():
+                if filepath.exists() and filepath.stat().st_size > 10 * 1024:
                     print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
                     continue
                 print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Generating: {filename}")
@@ -202,7 +202,7 @@ def main():
         for idx, prompt in enumerate(SEEN_PROMPTS, start=1):
             filename = f"after_seen_{idx}.png"
             filepath = output_dir / filename
-            if filepath.exists():
+            if filepath.exists() and filepath.stat().st_size > 10 * 1024:
                 print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Skipping (exists): {filename}")
                 continue
             print(f"[Seen {idx}/{len(SEEN_PROMPTS)}] Generating: {filename}")
@@ -221,7 +221,7 @@ def main():
         for idx, prompt in enumerate(UNSEEN_PROMPTS, start=1):
             filename = f"after_unseen_{idx}.png"
             filepath = output_dir / filename
-            if filepath.exists():
+            if filepath.exists() and filepath.stat().st_size > 10 * 1024:
                 print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Skipping (exists): {filename}")
                 continue
             print(f"[Unseen {idx}/{len(UNSEEN_PROMPTS)}] Generating: {filename}")
