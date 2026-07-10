@@ -51,13 +51,6 @@ Each CSV contains one row per image with the generated caption used for LoRA tra
 
 - **Token Length Comparison**: [comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md](2_Captioning_Source_codes_and_intrepretation/comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md)
 
-- **Model-Specific Captions Map CSVs**:
-
-  - Z-Image: [captions_zimage.csv](data/id10/zimage/captions_zimage.csv)
-
-  - FLUX: [captions_flux.csv](data/id10/flux/captions_flux.csv)
-
-  - SDXL: [captions_sdxl.csv](data/id10/sdxl/captions_sdxl.csv)
 
 - **Model-Specific Quality Assurance (QA) Reports**:
 
