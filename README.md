@@ -26,13 +26,16 @@ The raw Label Studio JSON annotations (`data/raw_json/label_studio_texture_label
 
 ## 2  Captioning
 
-To bridge the gap between artisan metadata and diffusion models, we implemented model-specific prompt engineering. Since each image-generation model has a different text encoder and training history, we design custom caption formats for each. The actual generated statistics for the 177-image dataset are:
+To bridge the gap between artisan metadata and diffusion models, we implemented model-specific prompt engineering. Since each image-generation model has a different text encoder and training history, we design custom caption formats for each. In Natural Language Processing (NLP), text prompts are broken down into small word/sub-word fragments called **tokens** (where 1 token is roughly 0.75 words). Text encoders have strict limits on how many tokens they can process. The actual generated statistics and strategies for the 177-image dataset are:
 
-- **Z-Image Caption Engine (`caption_zimage.py`)**: Designed for aesthetic detail. It prefixes captions with the trigger word `intrecciami-style`, followed by a detailed description of the weave pattern, materials, and finish, and ends with premium texture and studio lighting keywords. The actual average length is **116.6 words / 163.7 GPT2/CLIP tokens** (ranging from 119 to 241 tokens).
+- **Z-Image Caption Engine (`caption_zimage.py` / Qwen3-4B Text Encoder)**: Designed for aesthetic detail. It prefixes captions with the trigger word `intrecciami-style`, followed by a detailed description of the weave pattern, materials, and finish, and ends with premium texture and studio lighting keywords. It has a target range of **60–100 words** defined in `caption_zimage.py`, with an actual maximum word count of **176 words** (observed in `qa_report_zimage.csv`). The actual average length is **116.6 words / 163.7 GPT2/CLIP tokens** (ranging from 119 to 241 tokens).
+  - *Captioning Strategy Justification:* We maintained captions around **~160 tokens** to ensure structural and content consistency across models before starting LoRA fine-tuning. `caption_zimage.py` places critical structural metadata at the beginning (trigger word, weave technique, materials) and aesthetic suffixes at the end as a clean template pattern.
 
-- **FLUX Caption Engine (`caption_flux.py`)**: Optimized for FLUX's T5-XXL dense text encoder. It compiles a long, highly descriptive conversational paragraph detailing precise structural paths, dimensions, continuous over-under weave orders, and textures. The actual average length is **156.1 words / 209.3 GPT2/CLIP tokens** (ranging from 137 to 365 tokens).
+- **FLUX Caption Engine (`caption_flux.py` / T5-XXL Text Encoder)**: Optimized for FLUX's T5-XXL dense text encoder. It compiles a long, highly descriptive conversational paragraph detailing precise structural paths, dimensions, continuous over-under weave orders, and textures. It has a target range of **80–120 words** defined in `caption_flux.py`, with an actual maximum word count of **264 words** (observed in `qa_report_flux.csv`). The actual average length is **156.1 words / 209.3 GPT2/CLIP tokens** (ranging from 137 to 365 tokens), with **0% truncation**.
+  - *Captioning Strategy Justification:* We kept captions length-controlled and consistent with Z-Image's **~160-token target** to maintain comparable prompt depth across both DiT models. This allowed `caption_flux.py` to generate rich, conversational paragraphs explaining dense physical over-under orders, giving the DiT backbone a complete structural blueprint.
 
-- **SDXL Caption Engine (`caption_sdxl.py`)**: Tailored for SDXL's dual CLIP encoders. It uses a structured tag-based syntax starting with the trigger word, followed by comma-separated descriptors (technique, weave types, finish, and materials), and ends with a short sentence describing the overall scene. The actual average length is **41.7 words / 84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens). Concretely, because SDXL has a hard 77-token ceiling, captions exceeding this limit (about 11.3% of the dataset) experienced truncation of the final descriptive scene sentence, whereas the core structural tags at the beginning were safely preserved.
+- **SDXL Caption Engine (`caption_sdxl.py` / Dual CLIP Encoders, 77-Token Limit)**: Tailored for SDXL's dual CLIP encoders. It uses a structured tag-based syntax starting with the trigger word, followed by comma-separated descriptors (technique, weave types, finish, and materials), and ends with a short sentence describing the overall scene. It has a target range of **30–50 words** defined in `caption_sdxl.py`, with an actual maximum word count of **74 words** (observed in `qa_report_sdxl.csv`). The actual average length is **41.7 words / 84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens). 
+  - *Captioning Strategy Justification:* The CLIP encoder in SDXL has a hard ceiling of **77 tokens**, and any prompt text exceeding this is silently truncated. Because our generated SDXL captions averaged **84.7 tokens**, captions exceeding this limit (about 11.3% of the dataset) experienced truncation of the final descriptive scene sentence. To mitigate this, `caption_sdxl.py` puts the critical, high-importance structural metadata (the `intrecciami-style` trigger, weaving technique, materials, and finish tags) at the absolute beginning of the prompt. The overall background scene descriptions were placed at the end, ensuring that truncation only discarded minor styling modifiers while leaving the core weave training signals intact.
 
 ### Captioning Reports & Outputs
 
@@ -57,6 +60,7 @@ To bridge the gap between artisan metadata and diffusion models, we implemented 
 ---
 
 ## 3 LoRA Training
+
 ### What is LoRA?
 
 **LoRA (Low-Rank Adaptation)** is a parameter-efficient fine-tuning method introduced by Hu et al. (2022). Instead of updating all billions of parameters in a pre-trained model, LoRA freezes the original weights and injects small trainable rank-decomposition matrices into each target layer.
@@ -104,7 +108,6 @@ The **rank** (`r`) is the bottleneck dimension of the A and B matrices. It deter
 
 **Why rank 32?** With only 177 training images, a higher rank would risk overfitting—the model could memorize individual training images instead of learning generalizable weave patterns. Rank 32 provides enough capacity to encode the weaving style vocabulary (intrecciami textures, over-under patterns, material appearances) while remaining regularized enough to generalize to unseen prompts.
 
-
 ### Model Architecture & Features Comparison
 
 Before setting up LoRA training, it is crucial to understand the architectural differences between the three base models. These differences directly dictate how each model processes prompts, represents complex textures, and utilizes computational resources.
@@ -115,10 +118,9 @@ Before setting up LoRA training, it is crucial to understand the architectural d
 | **Model Size (Base)** | 12 Billion Parameters | 2.6 Billion Parameters | ~3.0 Billion Parameters |
 | **Backbone Type** | Flow Matching (DiT) | Latent Diffusion (UNet) | Diffusion Transformer (DiT) |
 | **Primary Text Encoder** | T5-XXL | CLIP ViT-G/14 | Qwen3-4B |
-| **Hard Token Limit** | **512 Tokens** | **77 Tokens** (Strict Cutoff) | **512 Tokens** |
 | **Primary Image Engine** | ViT Patch-based (Latent) | Pixel-Convolutional (Latent) | ViT Patch-based (Latent) |
 | **Is True ViT Backbone?** | **Yes** | **No** (Uses UNet) | **Yes** |
-| **Long-Prompt Handling** | **Excellent** (Parses paragraphs & layouts) | **Poor/Moderate** (Truncates at 77 tokens) | **Good/Excellent** (Parses prompts up to 512 tokens) |
+| **Long-Prompt Handling** | **Excellent** (Parses paragraphs & layouts) | **Poor/Moderate** (Truncates at 77 tokens) | **Good/Excellent** (Parses structured captions up to 241 tokens) |
 | **Fine-Detail Preservation**| **Outstanding** (Crisp micro-textures) | **Moderate** (Simplifies or blurs weaves) | **Very Good** (Accurate texture style) |
 | **Training Efficiency** | **Low** (Massive memory & time needed) | **High** (Fast training, consumer friendly) | **Medium** (Standard resource usage) |
 
@@ -129,80 +131,88 @@ Before setting up LoRA training, it is crucial to understand the architectural d
 To make these advanced machine learning ideas easy to grasp, here is a simplified breakdown of what each comparison variable and concept actually means:
 
 #### 1. Developer
+
 The organization or research team that created, pre-trained, and released the base model. Each developer has different design philosophies, dataset filters, and tuning priorities.
 
 #### 2. Model Size (Base Parameters)
-Parameters are the "trainable knobs" or connections in a model's brain. 
+
+Parameters are the "trainable knobs" or connections in a model's brain.
+
 - **SDXL (2.6B):** Moderate size. Faster to train, fits on consumer graphics cards, but has limited capacity to store complex texture behaviors.
 - **Z-Image (3.0B):** Slightly larger, specialized for Chinese/Western aesthetics and balanced texture representations.
 - **FLUX (12.0B):** A massive brain. It can remember and draw incredibly complex visual relationships, but it is slow and requires enterprise-grade hardware.
 
 #### 3. What is a Transformer?
-Originally invented for translating text (like English to French), a **Transformer** is a model that processes sequences of information (like words in a sentence). 
+
+Originally invented for translating text (like English to French), a **Transformer** is a model that processes sequences of information (like words in a sentence).
 Its superpower is **Self-Attention**: instead of reading a sentence one word at a time, it looks at all words simultaneously and calculates how they relate to one another. For example, in the phrase *"a blue threads weave passing under a thick brown rattan post"*, the Transformer uses Attention to link "blue" to "threads", "thick brown" to "rattan post", and mathematically computes the physical relationship "passing under".
 
 #### 4. What is a Vision Transformer (ViT) & Patchification?
-Transformers were designed for words, not pixels. An image is made of millions of colored pixels, which is too much data for a text Transformer to process directly. 
+
+Transformers were designed for words, not pixels. An image is made of millions of colored pixels, which is too much data for a text Transformer to process directly.
 A **Vision Transformer (ViT)** solves this by "patchifying" the image:
+
 1. It slices the image into a grid of tiny square patches (e.g., 16x16 pixels each).
 2. It flattens each patch into a list of numbers and projects it into a vector.
 3. It treats each patch exactly like a **"word"** in a sentence.
 4. The Transformer then reads the grid of patches as if it were a visual paragraph, using Self-Attention to understand how a patch in the top-left corner (e.g., start of a rattan strand) connects to a patch in the bottom-right corner (e.g., end of the same strand).
 
 #### 5. How do we connect Transformers with Vision Diffusion Models? (What is a DiT?)
+
 To understand a **Diffusion Transformer (DiT)**, we look at the marriage of two concepts:
+
 - **Diffusion** is the process of generating images by starting with a screen full of random static noise and step-by-step cleaning it up (denoising) until a clean image emerges.
 - **The Denoising Engine** is the neural network doing the cleaning calculations at each step.
 
 Historically, diffusion models used a **UNet** backbone. UNet works like a stack of traditional image filters, shrinking the image to find global shapes and stretching it back out to add details. However, it struggles to coordinate repeating, precise geometric patterns over long distances.
 
 A **Diffusion Transformer (DiT)** replaces the UNet filters with a ViT Transformer:
+
 ```
 [Noisy Image] ──► [Patchify (ViT Grid)] ──┐
                                           ├──► [Transformer Blocks] ──► [Clean Patches] ──► [Final Image]
 [Text Prompt] ──► [Tokenize (Text words)] ──┘      (Self-Attention)
 ```
+
 Instead of filtering pixels, the DiT model slices the noisy image into patches, treats the patches and the prompt words as one big combined sequence, and passes them through Transformer blocks. The model uses self-attention to align the text descriptions directly with the corresponding image patches, predicting exactly how to denoise each patch so they stitch back together into a coherent, structurally sound weave pattern. This is why FLUX and Z-Image are far superior at preserving physical weave continuity compared to SDXL.
 
 > [!NOTE]
 > **Are all three models Vision Transformers (ViT)?**
 > No. Only **FLUX.1-dev** and **Z-Image** use a ViT/Transformer as their core image-generation backbone.
+>
 > - **FLUX & Z-Image (DiT):** True ViT backbones. They slice the image latent space into distinct patches (tokens), processing them purely with Self-Attention layers.
 > - **SDXL (UNet):** Convolutional, not ViT. Its core backbone is a UNet made of convolutional layers that scan neighboring pixels using localized sliding windows. (While SDXL uses a CLIP encoder which contains a ViT for text-image matching, the actual image-drawing engine in SDXL is convolutional).
 
-
 #### 6. Primary Text Encoder
+
 The "translator" that reads your English prompt and converts it into numerical math vectors the image generator can understand:
+
 - **CLIP (SDXL):** Best for short, tag-like concepts (e.g., "leather weave, studio lighting"). It is limited to 77 tokens and gets overwhelmed by long paragraphs or complex grammar.
 - **Qwen3-4B (Z-Image):** A bilingual large language model that acts as the text encoder. Since it is a generative LLM, it understands detailed descriptions and complex prompt structures up to 512 tokens.
 - **T5-XXL (FLUX):** A massive, deep language model. It understands full sentences, grammar, prepositions, spatial relations (e.g., "the vertical strip on the left"), and long paragraphs. This allows the captioning engine to feed extremely detailed manufacturing blueprints directly into the model.
 
 #### 7. Long-Prompt Handling
+
 How well the model behaves when you give it a long description:
+
 - Models with CLIP encoders (**SDXL**) ignore everything after the first 77 tokens (words/symbols) and struggle to associate adjectives with the correct nouns.
 - Models with LLM/T5 encoders (**FLUX** and **Z-Image**) can read and process dense, multi-sentence paragraphs without getting confused or "forgetting" instructions from the beginning of the prompt (up to 512 tokens).
 
 #### 8. Fine-Detail Preservation
+
 The ability to render tiny, high-frequency structures without them turning into a blurry mess:
+
 - Because **FLUX** has 12 billion parameters and a DiT backbone, it can easily draw individual rattan fibers, shadows underneath single strands, and stitch-level details.
 - **SDXL**, with fewer parameters, tends to smooth out these details, resulting in a painted or stylized look rather than a crisp physical texture.
 
 #### 9. Training Efficiency
+
 The balance between training speed, time, and hardware cost:
+
 - **High Efficiency (SDXL):** The model is lightweight (2.6 Billion parameters). It can be fine-tuned quickly, requires very little memory (VRAM), and runs easily on standard consumer graphic cards (like an RTX 3090/4090).
 - **Low Efficiency (FLUX):** The model is huge (12 Billion parameters). It demands enterprise-grade computing power (multiple A100/H100 GPUs) and takes significantly longer to train, but yields much higher quality outputs.
 
-#### 10. Hard Token Limits & Captioning Strategy Justification
-In Natural Language Processing (NLP), text prompts are broken down into small word/sub-word fragments called **tokens** (where 1 token is roughly 0.75 words). Text encoders have strict limits on how many tokens they can process:
-- **SDXL (77-Token Limit):** The CLIP encoder in SDXL has a hard ceiling of **77 tokens**. Any prompt text that exceeds 77 tokens is silently truncated and ignored during inference.
-  - *Captioning Strategy Justification:* The generated SDXL captions average **84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens). Because SDXL has a hard 77-token ceiling, captions exceeding this limit (about 11.3% of the dataset) experienced truncation of the final descriptive scene sentence. To mitigate this, `caption_sdxl.py` puts the critical, high-importance structural metadata (the `intrecciami-style` trigger, weaving technique, materials, and finish tags) at the absolute beginning of the prompt. The overall background scene descriptions were placed at the end, ensuring that truncation only discarded minor styling modifiers while leaving the core weave training signals intact.
-- **Z-Image (512-Token Limit):** The Qwen3-4B text encoder natively processes sequences up to **512 tokens**.
-  - *Captioning Strategy Justification:* Although Z-Image's text encoder supports prompts up to 512 tokens, we maintained captions around **160 tokens** (averaging **163.7 GPT2/CLIP tokens**, ranging from 119 to 241 tokens) to ensure structural and content consistency across models before starting LoRA fine-tuning. Because of the large 512-token limit, Z-Image captions are safe from truncation. `caption_zimage.py` still places critical structural metadata at the beginning and aesthetic suffixes at the end as a clean template pattern.
-- **FLUX (512-Token Limit):** The T5-XXL text encoder natively processes sequences up to **512 tokens**.
-  - *Captioning Strategy Justification:* Because of the large 512-token limit, FLUX captions (average **209.3 GPT2/CLIP tokens**, max 365 tokens) are completely safe from truncation. This allowed `caption_flux.py` to generate rich, conversational paragraphs explaining dense physical over-under orders, giving the DiT backbone a complete structural blueprint without any threat of text cutoff.
-
 ---
-
 
 ### LoRA Hyperparameter Configurations
 
@@ -412,4 +422,3 @@ While the IntreccIAmi pipeline demonstrates that LoRA fine-tuning can encode art
 - **VLM Judge Subjectivity.** The qualitative scores depend on a single VLM (Qwen-Vision) acting as judge. This introduces systematic bias: the judge may consistently over- or under-rate certain visual features relative to human artisan evaluators. Cross-validation with human expert panels or multiple VLM judges would strengthen the qualitative assessment.
 
 - **Resolution Ceiling.** Training at 512×512 / 1024×1024 means the models can't capture micro-fiber details (individual rattan strands, thread grain at 0.1mm scale) that would be visible in high-resolution production photography.
-
