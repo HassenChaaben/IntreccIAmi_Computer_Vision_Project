@@ -1,10 +1,14 @@
 # Project ID 10 - IntreccIAmi
-## 1. Metadata Extraction
-## 2. Captioning
-## 3. LoRA Training
-## 4. Evaluation
-## 5. Interpretation & Conclusion
-## 6. Limitations
+---
+### 0. Introduction
+### 1. Metadata Extraction
+### 2. Captioning
+### 3. LoRA Training
+### 4. Evaluation
+### 5. Interpretation & Conclusion
+### 6. Limitations
+---
+## 0.Introduction
 The IntreccIAmi project asked a difficult question: can we transfer the language and structure of artisan weaving into image generation models in a controlled way? The project did not start from a clean text-to-image dataset. It started from workshop photographs, Label Studio annotations, metadata extraction, and caption generation. Only after that preparation could fine-tuning begin.
 
 From the fine-tuning stage onward, the workflow can be summarized like this:
