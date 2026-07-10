@@ -37,6 +37,16 @@ To bridge the gap between artisan metadata and diffusion models, we implemented 
 - **SDXL Caption Engine (`caption_sdxl.py` / Dual CLIP Encoders, 77-Token Limit)**: Tailored for SDXL's dual CLIP encoders. It uses a structured tag-based syntax starting with the trigger word, followed by comma-separated descriptors (technique, weave types, finish, and materials), and ends with a short sentence describing the overall scene. It has a target range of **30–50 words** defined in `caption_sdxl.py`, with an actual maximum word count of **74 words** (observed in `qa_report_sdxl.csv`). The actual average length is **41.7 words / 84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens). 
   - *Captioning Strategy Justification:* The CLIP encoder in SDXL has a hard ceiling of **77 tokens**, and any prompt text exceeding this is silently truncated. Because our generated SDXL captions averaged **84.7 tokens**, captions exceeding this limit (about 11.3% of the dataset) experienced truncation of the final descriptive scene sentence. To mitigate this, `caption_sdxl.py` puts the critical, high-importance structural metadata (the `intrecciami-style` trigger, weaving technique, materials, and finish tags) at the absolute beginning of the prompt. The overall background scene descriptions were placed at the end, ensuring that truncation only discarded minor styling modifiers while leaving the core weave training signals intact.
 
+
+### Where captions are saved
+
+After generation, captions are written to model-specific CSV files:
+
+- **Z-Image captions** → `data/id10/zimage/captions_zimage.csv`
+- **FLUX captions** → `data/id10/flux/captions_flux.csv`
+- **SDXL captions** → `data/id10/sdxl/captions_sdxl.csv`
+
+Each CSV contains one row per image with the generated caption used for LoRA training.
 ### Captioning Reports & Outputs
 
 - **Token Length Comparison**: [comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md](2_Captioning_Source_codes_and_intrepretation/comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md)
