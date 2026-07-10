@@ -1,5 +1,10 @@
 # Project ID 10 - IntreccIAmi
-
+## 1. Metadata Extraction
+## 2. Captioning
+## 3. LoRA Training
+## 4. Evaluation
+## 5. Interpretation & Conclusion
+## 6. Limitations
 The IntreccIAmi project asked a difficult question: can we transfer the language and structure of artisan weaving into image generation models in a controlled way? The project did not start from a clean text-to-image dataset. It started from workshop photographs, Label Studio annotations, metadata extraction, and caption generation. Only after that preparation could fine-tuning begin.
 
 From the fine-tuning stage onward, the workflow can be summarized like this:
@@ -230,6 +235,26 @@ The balance between training speed, time, and hardware cost:
 | **Precision** | `bfloat16` | `float16` (except VAE in `float32`) | `float16` |
 | **Hardware Setup** | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Single-GPU (`CUDA_VISIBLE_DEVICES=0`) |
 | **Training Steps** | 3,540 steps (Epochs 0–1) | 14,160 steps (Epochs 0–3) | 14,160 steps (Epochs 0–3) |
+
+### Dataset paths used for LoRA training (image-caption pairs)
+
+The LoRA scripts train on paired **(image, caption)** data prepared in model-specific folders under `data/id10/`:
+
+- **Z-Image pair dataset**: `data/id10/zimage/`
+  - Images: `data/id10/zimage/images/`
+  - Captions CSV: `data/id10/zimage/captions_zimage.csv`
+
+- **FLUX pair dataset**: `data/id10/flux/`
+  - Images: `data/id10/flux/images/`
+  - Captions CSV: `data/id10/flux/captions_flux.csv`
+
+- **SDXL pair dataset**: `data/id10/sdxl/`
+  - Images: `data/id10/sdxl/images/`
+  - Captions CSV: `data/id10/sdxl/captions_sdxl.csv`
+
+Each row in the caption CSV maps to its corresponding training image, forming the image-text pairs used during LoRA fine-tuning.
+
+
 
 ## 4 Evaluation
 
