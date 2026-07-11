@@ -1,14 +1,14 @@
 # Project ID 10 - IntreccIAmi
 ---
-### 0. Introduction
-### 1. Metadata Extraction
-### 2. Captioning
-### 3. LoRA Training
-### 4. Evaluation
-### 5. Interpretation & Conclusion
-### 6. Limitations
+- [0. Introduction](#0-introduction)
+- [1. Metadata Extraction](#1-metadata-extraction)
+- [2. Captioning](#2-captioning)
+- [3. LoRA Training](#3-lora-training)
+- [4. Evaluation](#4-evaluation)
+- [5. Interpretation & Conclusion](#5-interpretation--conclusion)
+- [6. Limitations](#6-limitations)
 ---
-## 0.Introduction
+## 0. Introduction
 The IntreccIAmi project asked a difficult question: can we transfer the language and structure of artisan weaving into image generation models in a controlled way? The project did not start from a clean text-to-image dataset. It started from workshop photographs, Label Studio annotations, metadata extraction, and caption generation. Only after that preparation could fine-tuning begin.
 
 From the fine-tuning stage onward, the workflow can be summarized like this:
@@ -21,7 +21,7 @@ From the fine-tuning stage onward, the workflow can be summarized like this:
 
 ---
 
-## 1_Metadata_extraction
+## 1. Metadata Extraction
 
 In this project, raw annotations contained technique names, weave types, finish information, post geometry, weft geometry, and free-text notes. Without normalization, the caption model would see mixed naming styles and inconsistent structures.
 
@@ -33,7 +33,7 @@ The raw Label Studio JSON annotations (`data/raw_json/label_studio_texture_label
 
 ---
 
-## 2  Captioning
+## 2. Captioning
 
 To bridge the gap between artisan metadata and diffusion models, we implemented model-specific prompt engineering. Since each image-generation model has a different text encoder and training history, we design custom caption formats for each. In Natural Language Processing (NLP), text prompts are broken down into small word/sub-word fragments called **tokens** (where 1 token is roughly 0.75 words). Text encoders have strict limits on how many tokens they can process. The actual generated statistics and strategies for the 177-image dataset are:
 
@@ -71,7 +71,7 @@ Each CSV contains one row per image with the generated caption used for LoRA tra
 
 ---
 
-## 3 LoRA Training
+## 3. LoRA Training
 
 ### What is LoRA?
 
@@ -260,7 +260,7 @@ Each row in the caption CSV maps to its corresponding training image, forming th
 
 
 
-## 4 Evaluation
+## 4. Evaluation
 
 To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on 20 unseen validation prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
 
@@ -421,7 +421,7 @@ To assess structural and domain-specific properties, we implemented an automated
 
 ---
 
-## 5 Interpretation & Conclusion
+## 5. Interpretation & Conclusion
 
 All three CLIPScores cluster tightly around 0.31, indicating that the three LoRA fine-tunings achieve comparable prompt adherence: the text encoders faithfully steer generation toward the requested weave descriptions regardless of backbone architecture.
 
@@ -437,7 +437,7 @@ In summary, **FLUX is the recommended backbone for design-to-manufacturing workf
 
 ---
 
-## 6 Limitations
+## 6. Limitations
 
 While the IntreccIAmi pipeline demonstrates that LoRA fine-tuning can encode artisan weaving styles into diffusion models, several fundamental limitations remain:
 
