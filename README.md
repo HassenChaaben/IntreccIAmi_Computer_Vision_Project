@@ -294,7 +294,7 @@ Each row in the caption CSV maps to its corresponding training image, forming th
   </figure>
 </div>
 
-To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on ) & unseen(prompts that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
+To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on) & unseen prompts (that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
 
 ### 4.1 Quantitative Evaluation
 
