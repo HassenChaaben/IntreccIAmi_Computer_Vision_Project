@@ -1,7 +1,7 @@
 cp /home/project_id_10/DiffSynth-Studio/data/id10/zimage/models/Z-Image_lora/epoch-0.safetensors /home/project_id_10/DiffSynth-Studio/data/id10/zimage/models/Z-Image_lora/epoch-0_original.safetensors
 
 
-CUDA_VISIBLE_DEVICES=0 accelerate launch --num_processes 1 \
+CUDA_VISIBLE_DEVICES=1,2 accelerate launch --num_processes 2 \
   examples/z_image/model_training/train.py \
   --dataset_base_path /home/project_id_10/Captioning/data/id10/zimage \
   --dataset_metadata_path /home/project_id_10/Captioning/data/id10/zimage/metadata_zimage.jsonl \
