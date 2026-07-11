@@ -331,7 +331,7 @@ This section showcases the generation quality across the three models alongside 
 
 **Interpretation:** FLUX excellently captures the difference between the "round filaments" (posts) and "flat piattina strands" (wefts), producing a physically constructible image. Z-Image provides a good rendering of the rattan's earthy tones and simple weave. SDXL completely ignores the structural difference between round posts and flat wefts, creating a homogenized, zoomed-in texture that lacks true physical depth.
 
-To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on) & unseen prompts (that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
+**To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on) & unseen prompts (that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.**
 
 ### 4.2 Quantitative Evaluation
 
