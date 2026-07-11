@@ -36,7 +36,7 @@ From the fine-tuning stage onward, the workflow can be summarized like this:
 
 - Prepare model-specific datasets built from the normalized metadata and generated captions.
 
-- Fine-tune three backbones with LoRA: FLUX.1-dev, SDXL, and Z-Image.
+- Fine-tune three backbones with LoRA (using [DiffSynth-Studio](https://github.com/modelscope/diffsynth-studio)): FLUX.1-dev, SDXL, and Z-Image.
 
 - Evaluate the generated images with automated metrics and with a qualitative vision-language judge.
 
