@@ -1,14 +1,35 @@
-# Project ID 10 - IntreccIAmi
+<div align="center">
+  <h1>🧶 Project ID 10 - IntreccIAmi</h1>
+  
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python" />
+    <img src="https://img.shields.io/badge/PyTorch-2.0+-red.svg" alt="PyTorch" />
+    <img src="https://img.shields.io/badge/LoRA-Fine%20Tuning-orange.svg" alt="LoRA" />
+    <img src="https://img.shields.io/badge/Diffusers-HuggingFace-yellow.svg" alt="Diffusers" />
+  </p>
+  
+  <p>
+    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/after_unseen_1.png" width="45%" alt="Generated Weave">
+    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/after_unseen_12.png" width="45%" alt="Generated Weave">
+  </p>
+  
+  <p><em>Transferring the language and structure of artisan weaving into image generation models.</em></p>
+</div>
+
 ---
-- [0. Introduction](#0-introduction)
-- [1. Metadata Extraction](#1-metadata-extraction)
-- [2. Captioning](#2-captioning)
-- [3. LoRA Training](#3-lora-training)
-- [4. Evaluation](#4-evaluation)
-- [5. Interpretation & Conclusion](#5-interpretation--conclusion)
-- [6. Limitations](#6-limitations)
+
+## 📑 Table of Contents
+- [📖 0. Introduction](#0-introduction)
+- [✂️ 1. Metadata Extraction](#1-metadata-extraction)
+- [📝 2. Captioning](#2-captioning)
+- [🧠 3. LoRA Training](#3-lora-training)
+- [📊 4. Evaluation](#4-evaluation)
+- [🎯 5. Interpretation & Conclusion](#5-interpretation--conclusion)
+- [⚠️ 6. Limitations](#6-limitations)
+
 ---
-## 0. Introduction
+
+## <a id="0-introduction"></a>📖 0. Introduction
 The IntreccIAmi project asked a difficult question: can we transfer the language and structure of artisan weaving into image generation models in a controlled way? The project did not start from a clean text-to-image dataset. It started from workshop photographs, Label Studio annotations, metadata extraction, and caption generation. Only after that preparation could fine-tuning begin.
 
 From the fine-tuning stage onward, the workflow can be summarized like this:
@@ -21,7 +42,7 @@ From the fine-tuning stage onward, the workflow can be summarized like this:
 
 ---
 
-## 1. Metadata Extraction
+## <a id="1-metadata-extraction"></a>✂️ 1. Metadata Extraction
 
 In this project, raw annotations contained technique names, weave types, finish information, post geometry, weft geometry, and free-text notes. Without normalization, the caption model would see mixed naming styles and inconsistent structures.
 
@@ -33,7 +54,7 @@ The raw Label Studio JSON annotations (`data/raw_json/label_studio_texture_label
 
 ---
 
-## 2. Captioning
+## <a id="2-captioning"></a>📝 2. Captioning
 
 To bridge the gap between artisan metadata and diffusion models, we implemented model-specific prompt engineering. Since each image-generation model has a different text encoder and training history, we design custom caption formats for each. In Natural Language Processing (NLP), text prompts are broken down into small word/sub-word fragments called **tokens** (where 1 token is roughly 0.75 words). Text encoders have strict limits on how many tokens they can process. The actual generated statistics and strategies for the 177-image dataset are:
 
@@ -71,7 +92,7 @@ Each CSV contains one row per image with the generated caption used for LoRA tra
 
 ---
 
-## 3. LoRA Training
+## <a id="3-lora-training"></a>🧠 3. LoRA Training
 
 ### What is LoRA?
 
@@ -260,7 +281,19 @@ Each row in the caption CSV maps to its corresponding training image, forming th
 
 
 
-## 4. Evaluation
+## <a id="4-evaluation"></a>📊 4. Evaluation
+
+> [!NOTE]
+> Below are sample generated images comparing the model **Before** and **After** LoRA fine-tuning for an unseen prompt.
+
+<div align="center">
+  <figure style="display: inline-block; margin: 10px;">
+    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/before_unseen_11.png" width="45%" alt="Before LoRA">
+    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/after_unseen_11.png" width="45%" alt="After LoRA">
+    <br/>
+    <figcaption><em>FLUX.1-dev: Before LoRA (Left) vs After LoRA (Right)</em></figcaption>
+  </figure>
+</div>
 
 To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on 20 unseen validation prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
 
@@ -421,7 +454,7 @@ To assess structural and domain-specific properties, we implemented an automated
 
 ---
 
-## 5. Interpretation & Conclusion
+## <a id="5-interpretation--conclusion"></a>🎯 5. Interpretation & Conclusion
 
 All three CLIPScores cluster tightly around 0.31, indicating that the three LoRA fine-tunings achieve comparable prompt adherence: the text encoders faithfully steer generation toward the requested weave descriptions regardless of backbone architecture.
 
@@ -437,7 +470,7 @@ In summary, **FLUX is the recommended backbone for design-to-manufacturing workf
 
 ---
 
-## 6. Limitations
+## <a id="6-limitations"></a>⚠️ 6. Limitations
 
 While the IntreccIAmi pipeline demonstrates that LoRA fine-tuning can encode artisan weaving styles into diffusion models, several fundamental limitations remain:
 
