@@ -19,6 +19,7 @@
 ---
 
 ## 📑 Table of Contents
+
 - [📖 0. Introduction](#0-introduction)
 - [✂️ 1. Metadata Extraction](#1-metadata-extraction)
 - [📝 2. Captioning](#2-captioning)
@@ -30,6 +31,7 @@
 ---
 
 ## <a id="0-introduction"></a>📖 0. Introduction
+
 The IntreccIAmi project asked a difficult question: can we transfer the language and structure of artisan weaving into image generation models in a controlled way? The project did not start from a clean text-to-image dataset. It started from workshop photographs, Label Studio annotations, metadata extraction, and caption generation. Only after that preparation could fine-tuning begin.
 
 From the fine-tuning stage onward, the workflow can be summarized like this:
@@ -64,9 +66,8 @@ To bridge the gap between artisan metadata and diffusion models, we implemented 
 - **FLUX Caption Engine (`caption_flux.py` / T5-XXL Text Encoder)**: Optimized for FLUX's T5-XXL dense text encoder. It compiles a long, highly descriptive conversational paragraph detailing precise structural paths, dimensions, continuous over-under weave orders, and textures. It has a target range of **80–120 words** defined in `caption_flux.py`, with an actual maximum word count of **264 words** (observed in `qa_report_flux.csv`). The actual average length is **156.1 words / 209.3 GPT2/CLIP tokens** (ranging from 137 to 365 tokens), with **0% truncation**.
   - *Captioning Strategy Justification:* We kept captions length-controlled and consistent with Z-Image's **~160-token target** to maintain comparable prompt depth across both DiT models. This allowed `caption_flux.py` to generate rich, conversational paragraphs explaining dense physical over-under orders, giving the DiT backbone a complete structural blueprint.
 
-- **SDXL Caption Engine (`caption_sdxl.py` / Dual CLIP Encoders, 77-Token Limit)**: Tailored for SDXL's dual CLIP encoders. It uses a structured tag-based syntax starting with the trigger word, followed by comma-separated descriptors (technique, weave types, finish, and materials), and ends with a short sentence describing the overall scene. It has a target range of **30–50 words** defined in `caption_sdxl.py`, with an actual maximum word count of **74 words** (observed in `qa_report_sdxl.csv`). The actual average length is **41.7 words / 84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens). 
+- **SDXL Caption Engine (`caption_sdxl.py` / Dual CLIP Encoders, 77-Token Limit)**: Tailored for SDXL's dual CLIP encoders. It uses a structured tag-based syntax starting with the trigger word, followed by comma-separated descriptors (technique, weave types, finish, and materials), and ends with a short sentence describing the overall scene. It has a target range of **30–50 words** defined in `caption_sdxl.py`, with an actual maximum word count of **74 words** (observed in `qa_report_sdxl.csv`). The actual average length is **41.7 words / 84.7 GPT2/CLIP tokens** (ranging from 43 to 117 tokens).
   - *Captioning Strategy Justification:* The CLIP encoder in SDXL has a hard ceiling of **77 tokens**, and any prompt text exceeding this is silently truncated. Because our generated SDXL captions averaged **84.7 tokens**, captions exceeding this limit (about 11.3% of the dataset) experienced truncation of the final descriptive scene sentence. To mitigate this, `caption_sdxl.py` puts the critical, high-importance structural metadata (the `intrecciami-style` trigger, weaving technique, materials, and finish tags) at the absolute beginning of the prompt. The overall background scene descriptions were placed at the end, ensuring that truncation only discarded minor styling modifiers while leaving the core weave training signals intact.
-
 
 ### Where captions are saved
 
@@ -77,10 +78,10 @@ After generation, captions are written to model-specific CSV files:
 - **SDXL captions** → `data/id10/sdxl/captions_sdxl.csv`
 
 Each CSV contains one row per image with the generated caption used for LoRA training.
+
 ### Captioning Reports & Outputs
 
 - **Token Length Comparison**: [comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md](2_Captioning_Source_codes_and_intrepretation/comparison_of_caption_token_lengths_generated_by_the_different_models_Z-Image_Flux_SDXL.md)
-
 
 - **Model-Specific Quality Assurance (QA) Reports**:
 
@@ -279,8 +280,6 @@ The LoRA scripts train on paired **(image, caption)** data prepared in model-spe
 
 Each row in the caption CSV maps to its corresponding training image, forming the image-text pairs used during LoRA fine-tuning.
 
-
-
 ## <a id="4-evaluation"></a>📊 4. Evaluation
 
 > [!NOTE]
@@ -295,7 +294,7 @@ Each row in the caption CSV maps to its corresponding training image, forming th
   </figure>
 </div>
 
-To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on 20 unseen validation prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
+To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on ) & unseen(prompts that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
 
 ### 4.1 Quantitative Evaluation
 
