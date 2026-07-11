@@ -283,20 +283,57 @@ Each row in the caption CSV maps to its corresponding training image, forming th
 ## <a id="4-evaluation"></a>📊 4. Evaluation
 
 > [!NOTE]
-> Below are sample generated images comparing the model **Before** and **After** LoRA fine-tuning for an unseen prompt.
+> Below are sample generated images comparing the three models (FLUX, SDXL, Z-Image) against the true Original reference image for various seen prompts.
+
+### 4.1 Qualitative Model Comparison (Examples 1, 8, 10)
+
+This section showcases the generation quality across the three models alongside the original reference picture and the exact structural style prompt.
+
+#### Example 1: Green Rattan Weave (Intreccio spina salto 2)
+**Style Prompt:** `intrecciami-style: A meticulously crafted woven square featuring an intricate Intreccio spina salto 2 pattern. The weave showcases a tight, symmetrical structure with double posts and wefts interlacing in a precise over-under sequence, creating a visually appealing grid-like texture. The natural rattan strands, flattened and evenly spaced, are uniformly dyed in a vibrant Verde (green) hue, highlighting the raw, unvarnished (Grezzo) finish. Encased in a light beige leather border with clean, stitched edges. Close-up studio photograph, premium texture, high resolution, macro photography.`
 
 <div align="center">
-  <figure style="display: inline-block; margin: 10px;">
-    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/before_unseen_11.png" width="45%" alt="Before LoRA">
-    <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_examples_unseen_prompts/after_unseen_11.png" width="45%" alt="After LoRA">
-    <br/>
-    <figcaption><em>FLUX.1-dev: Before LoRA (Left) vs After LoRA (Right)</em></figcaption>
-  </figure>
+  <img src="test_images/original_seen_1.jpg" width="24%" alt="Original">
+  <img src="test_images/flux_after_seen_1.png" width="24%" alt="FLUX">
+  <img src="test_images/SDXL_after_seen_1.png" width="24%" alt="SDXL">
+  <img src="test_images/Z_score_after_seen_1.png" width="24%" alt="Z-Image">
+  <br/>
+  <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
 </div>
+
+**Interpretation:** FLUX successfully adheres to the structural blueprint, capturing the exact green hue and the leather border constraint. Z-Image also performs well on the structural texture but slightly distorts the border. SDXL fundamentally fails to understand the multi-part constraint (border vs. weave); it hallucinates a generic, completely borderless flat green texture that ignores the spatial context required.
+
+#### Example 8: Natural Bamboo Strips (Intreccio spina salto 2)
+**Style Prompt:** `intrecciami-style: A meticulously crafted woven texture showcasing the Intreccio spina salto 2 technique, characterized by a double-thread interlacing pattern. The weave features natural bamboo strips with a rustic, unvarnished finish, maintaining their authentic earthy tones. The posts and wefts, both measuring 3 mm in thickness, are woven in a tight, consistent pattern with a 2-step skip, creating a visually intricate and durable structure. The natural bamboo material retains its organic texture and color, emphasizing a raw, artisanal aesthetic. The weave demonstrates a balanced density with uniform spacing, highlighting the skilled craftsmanship involved in its creation. , close-up studio photograph, premium texture, high resolution, macro photography.`
+
+<div align="center">
+  <img src="test_images/original_seen_8.jpg" width="24%" alt="Original">
+  <img src="test_images/flux_after_seen_8.png" width="24%" alt="FLUX">
+  <img src="test_images/SDXL_after_seen_8.png" width="24%" alt="SDXL">
+  <img src="test_images/Z_score_after_seen_8.png" width="24%" alt="Z-Image">
+  <br/>
+  <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
+</div>
+
+**Interpretation:** FLUX renders highly accurate, crisp natural bamboo strips that maintain the "2-step skip" over-under structural integrity. Z-Image captures the rustic aesthetic and earthy tones but with slightly more high-frequency noise. SDXL creates an edge-to-edge pattern mimicking the colors but struggles to physically preserve the structural rigidity of the bamboo strips, resulting in a somewhat painted or softer look.
+
+#### Example 10: Natural Rattan (Intreccio semplice)
+**Style Prompt:** `intrecciami-style: A meticulously crafted Intreccio semplice weave showcases a harmonious blend of natural rattan materials. The posts are composed of round filaments, measuring 2 mm in diameter, evenly spaced and creating a sturdy foundation. The wefts are flat piattina strands, 4 mm wide, interlaced over and under the posts in a consistent, repeating pattern. The weave exhibits a dense, uniform structure with a natural, unvarnished finish, highlighting the raw texture and earthy tones of the rattan. The craftsmanship is evident in the precise over-under crossings, resulting in a visually appealing and tactile surface. Close-up studio photograph, premium texture, high resolution, macro photography.`
+
+<div align="center">
+  <img src="test_images/original_seen_10.jpg" width="24%" alt="Original">
+  <img src="test_images/flux_after_seen_10.png" width="24%" alt="FLUX">
+  <img src="test_images/SDXL_after_seen_10.png" width="24%" alt="SDXL">
+  <img src="test_images/Z_score_after_seen_10.png" width="24%" alt="Z-Image">
+  <br/>
+  <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
+</div>
+
+**Interpretation:** FLUX excellently captures the difference between the "round filaments" (posts) and "flat piattina strands" (wefts), producing a physically constructible image. Z-Image provides a good rendering of the rattan's earthy tones and simple weave. SDXL completely ignores the structural difference between round posts and flat wefts, creating a homogenized, zoomed-in texture that lacks true physical depth.
 
 To evaluate the generalization performance of our fine-tuned LoRA models, we run inference on seen(prompts that the model trained on) & unseen prompts (that the model never seen) both prompts and perform a comprehensive evaluation combining automated quantitative metrics and qualitative MLLM-as-a-judge assessments.
 
-### 4.1 Quantitative Evaluation
+### 4.2 Quantitative Evaluation
 
 This section describes each quantitative metric in detail: what it measures, how it is computed, its range, its limitations, and why it was selected for this project.
 
@@ -414,7 +451,7 @@ This section describes each quantitative metric in detail: what it measures, how
 
 ---
 
-### 4.2 Qualitative Evaluation (VLM Judge)
+### 4.3 Qualitative Evaluation (VLM Judge)
 
 To assess structural and domain-specific properties, we implemented an automated **VLM-as-a-judge** grading pipeline using Qwen-Vision. Each generated image is scored on a 5-point scale (`1.0` to `5.0`) across five key criteria:
 
@@ -430,7 +467,7 @@ To assess structural and domain-specific properties, we implemented an automated
 
 ---
 
-### 4.3 Combined Evaluation & Metrics Comparison
+### 4.4 Combined Evaluation & Metrics Comparison
 
 #### 1. Combined Quantitative Metrics Comparison (Mean ± Std)
 
