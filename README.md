@@ -454,3 +454,7 @@ While the IntreccIAmi pipeline demonstrates that LoRA fine-tuning can encode art
 - **VLM Judge Subjectivity.** The qualitative scores depend on a single VLM (Qwen-Vision) acting as judge. This introduces systematic bias: the judge may consistently over- or under-rate certain visual features relative to human artisan evaluators. Cross-validation with human expert panels or multiple VLM judges would strengthen the qualitative assessment.
 
 - **Resolution Ceiling.** Training at 512×512 / 1024×1024 means the models can't capture micro-fiber details (individual rattan strands, thread grain at 0.1mm scale) that would be visible in high-resolution production photography.
+
+- **SDXL Prompt Truncation and Backbone Constraint.**  
+  SDXL uses CLIP text encoders with an effective prompt window of about **77 tokens** per encoder path.  
+  Our weaving prompts were often much longer (rich structural blueprints with material, geometry, and manufacturing details), so a large portion of the instructions was truncated before conditioning. This removed critical constraints and weakened controllability during fine-tuning and inference , in addition, SDXL’s denoiser is a **UNet-based latent diffusion backbone**, not a true **Vision Transformer (ViT/DiT)** image backbone , Compared with DiT-style architectures (e.g., FLUX, Z-Image), this made it less robust for preserving long-range structural dependencies required by complex woven layouts, contributing to lower manufacturability and structure consistency in generated results.
