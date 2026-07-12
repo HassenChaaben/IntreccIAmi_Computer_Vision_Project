@@ -293,10 +293,10 @@ This section showcases the generation quality across the three models alongside 
 **Style Prompt:** `intrecciami-style: A meticulously crafted woven square featuring an intricate Intreccio spina salto 2 pattern. The weave showcases a tight, symmetrical structure with double posts and wefts interlacing in a precise over-under sequence, creating a visually appealing grid-like texture. The natural rattan strands, flattened and evenly spaced, are uniformly dyed in a vibrant Verde (green) hue, highlighting the raw, unvarnished (Grezzo) finish. Encased in a light beige leather border with clean, stitched edges. Close-up studio photograph, premium texture, high resolution, macro photography.`
 
 <div align="center">
-  <img src="test_images/original_seen_1.jpg" width="24%" alt="Original">
-  <img src="test_images/flux_after_seen_1.png" width="24%" alt="FLUX">
-  <img src="test_images/SDXL_after_seen_1.png" width="24%" alt="SDXL">
-  <img src="test_images/Z_score_after_seen_1.png" width="24%" alt="Z-Image">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/original_name_1.jpg" width="24%" alt="Original">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/after_seen_1.png" width="24%" alt="FLUX">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/SDXL/SDXL_unseen_and__seen_prompts/after_seen_1.png" width="24%" alt="SDXL">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/Z_score/Z_score_seen_prompts/after_seen_1.png" width="24%" alt="Z-Image">
   <br/>
   <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
 </div>
@@ -307,10 +307,10 @@ This section showcases the generation quality across the three models alongside 
 **Style Prompt:** `intrecciami-style: A meticulously crafted woven texture showcasing the Intreccio spina salto 2 technique, characterized by a double-thread interlacing pattern. The weave features natural bamboo strips with a rustic, unvarnished finish, maintaining their authentic earthy tones. The posts and wefts, both measuring 3 mm in thickness, are woven in a tight, consistent pattern with a 2-step skip, creating a visually intricate and durable structure. The natural bamboo material retains its organic texture and color, emphasizing a raw, artisanal aesthetic. The weave demonstrates a balanced density with uniform spacing, highlighting the skilled craftsmanship involved in its creation. , close-up studio photograph, premium texture, high resolution, macro photography.`
 
 <div align="center">
-  <img src="test_images/original_seen_8.jpg" width="24%" alt="Original">
-  <img src="test_images/flux_after_seen_8.png" width="24%" alt="FLUX">
-  <img src="test_images/SDXL_after_seen_8.png" width="24%" alt="SDXL">
-  <img src="test_images/Z_score_after_seen_8.png" width="24%" alt="Z-Image">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/original_name_8.jpg" width="24%" alt="Original">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/after_seen_8.png" width="24%" alt="FLUX">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/SDXL/SDXL_unseen_and__seen_prompts/after_seen_8.png" width="24%" alt="SDXL">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/Z_score/Z_score_seen_prompts/after_seen_8.png" width="24%" alt="Z-Image">
   <br/>
   <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
 </div>
@@ -321,10 +321,10 @@ This section showcases the generation quality across the three models alongside 
 **Style Prompt:** `intrecciami-style: A meticulously crafted Intreccio semplice weave showcases a harmonious blend of natural rattan materials. The posts are composed of round filaments, measuring 2 mm in diameter, evenly spaced and creating a sturdy foundation. The wefts are flat piattina strands, 4 mm wide, interlaced over and under the posts in a consistent, repeating pattern. The weave exhibits a dense, uniform structure with a natural, unvarnished finish, highlighting the raw texture and earthy tones of the rattan. The craftsmanship is evident in the precise over-under crossings, resulting in a visually appealing and tactile surface. Close-up studio photograph, premium texture, high resolution, macro photography.`
 
 <div align="center">
-  <img src="test_images/original_seen_10.jpg" width="24%" alt="Original">
-  <img src="test_images/flux_after_seen_10.png" width="24%" alt="FLUX">
-  <img src="test_images/SDXL_after_seen_10.png" width="24%" alt="SDXL">
-  <img src="test_images/Z_score_after_seen_10.png" width="24%" alt="Z-Image">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/original_name_10.jpg" width="24%" alt="Original">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/flux/flux_exemples__seen_prompts/after_seen_10.png" width="24%" alt="FLUX">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/SDXL/SDXL_unseen_and__seen_prompts/after_seen_10.png" width="24%" alt="SDXL">
+  <img src="all_adopted_Results/Orginal_baseline_LoraGeneratedResults/Z_score/Z_score_seen_prompts/after_seen_10.png" width="24%" alt="Z-Image">
   <br/>
   <em>Left to Right: Original Reference | FLUX | SDXL | Z-Image</em>
 </div>
