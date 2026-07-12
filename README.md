@@ -259,7 +259,7 @@ The balance between training speed, time, and hardware cost:
 | **Dataset Size** | 177 images | 177 images | 177 images |
 | **Learning Rate** | `1e-4` | `1e-4` | `1e-4` |
 | **Precision** | `bfloat16` | `float16` (except VAE in `float32`) | `float16` |
-| **Hardware Setup** | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Single-GPU (`CUDA_VISIBLE_DEVICES=1.2`) |
+| **Hardware Setup** | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Multi-GPU (`CUDA_VISIBLE_DEVICES=1,2`) | Multi-GPU (`CUDA_VISIBLE_DEVICES=1.2`) |
 | **Training Steps** | 3,540 steps (Epochs 0–1) | 14,160 steps (Epochs 0–3) | 14,160 steps (Epochs 0–3) |
 
 ### Dataset paths used for LoRA training (image-caption pairs)
