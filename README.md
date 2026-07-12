@@ -154,7 +154,7 @@ Before setting up LoRA training, it is crucial to understand the architectural d
 | **Primary Text Encoder** | T5-XXL | CLIP ViT-G/14 | Qwen3-4B |
 | **Primary Image Engine** | ViT Patch-based (Latent) | Pixel-Convolutional (Latent) | ViT Patch-based (Latent) |
 | **Is True ViT Backbone?** | **Yes** | **No** (Uses UNet) | **Yes** |
-| **Long-Prompt Handling** | **Excellent** (Parses paragraphs & layouts) | **Poor/Moderate** (Truncates at 77 tokens) | **Good/Excellent** (Parses structured captions up to 241 tokens) |
+| **Long-Prompt Handling** | **Excellent** (Parses paragraphs & layouts) | **Poor/Moderate** (Truncates at 77 tokens) | **Good/Excellent** |
 | **Fine-Detail Preservation**| **Outstanding** (Crisp micro-textures) | **Moderate** (Simplifies or blurs weaves) | **Very Good** (Accurate texture style) |
 | **Training Efficiency** | **Low** (Massive memory & time needed) | **High** (Fast training, consumer friendly) | **Medium** (Standard resource usage) |
 
